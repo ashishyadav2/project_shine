@@ -1,62 +1,42 @@
-// import Alert from "./components/Alert";
-import Button from "./components/Button";
+import ActionButton from "./components/ActionButton";
+import Header from "./components/Header";
+import LinkTag from "./components/LinkTag";
 import Navbar from "./components/Navbar";
-// import ListGroup from "./components/ListGroup";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import TagContainer from "./components/TagContainer";
+import Tags from "./components/Tags";
+
 function App() {
-  // let items = ["Mumbai", "Tokyo", "New york", "Paris", "London"];
-  // const handleSelectItem = (item: string) => {
-  //   console.log(item);
-  // };
-  const handleButtonFunction = () => {
-    console.log("Clicked");
-  };
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Button buttonText="Click me" />,
-    },
-    {
-      path: "/btn1",
-      element: <Button buttonText="Click me" />,
-    },
-    {
-      path: "/btn2",
-      element: <Button buttonText="Click me 2" />,
-    },
-  ]);
+  let array = [
+    "MongoDB",
+    "SQL",
+    "HTML",
+    "CSS",
+    "Python",
+    "Java",
+    "ReactJS",
+    "Node",
+    "Django",
+    "Machine Learning",
+    "Flask",
+  ];
   return (
     <>
-      <Navbar />
-      <RouterProvider router={router} />
+      {/* <ActionButton btnText="Home" btnType="active" />
+      <ActionButton btnText="Project" btnType="inactive" /> */}
+      {/* <LinkTag linkText="click here" /> */}
+      <div id="overlay">
+        <Header />
+        <div className="homeMiddleDiv">
+          <p className="heading">
+            Transforming challenges into solutions through technology
+          </p>
+          <div className="textUnderline"></div>
+        </div>
+        <div className="homeBottomTags">
+          <TagContainer tagTextArr={array} />
+        </div>
+      </div>
     </>
   );
-  // return (
-  //   <div>
-  //     <Button
-  //       buttonColor="danger"
-  //       buttonText="Click Me"
-  //       buttonFunction={handleButtonFunction}
-  //     />
-  //     <div className="rounded-lg">Hello world</div>
-  //   </div>
-  // );
-  // return (
-  //   <div>
-  //     <Alert>
-  //       <h1>Hello world</h1>
-  //     </Alert>
-  //     {/* <Alert message="Something went wrong" /> */}
-  //   </div>
-  // );
-  // return (
-  //   <div>
-  //     <ListGroup
-  //       items={items}
-  //       heading="Heading 1"
-  //       onSelectItem={handleSelectItem}
-  //     />
-  //   </div>
-  // );
 }
 export default App;

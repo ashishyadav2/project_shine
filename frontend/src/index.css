@@ -1,3 +1,86 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --accent-color: #2962ff;
+  --accent-color-hover: #0d47a1;
+  --outline-border-width: 2px;
+  --underline-color: #1de9b6;
+}
+.activeActionBtn {
+  @apply hover:bg-blue-700 text-white py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  background-color: var(--accent-color);
+  border: var(--outline-border-width) solid var(--accent-color);
+}
+.activeActionBtn:hover {
+  background-color: var(--accent-color-hover);
+  border: var(--outline-border-width) solid var(--accent-color-hover);
+}
+.inactiveActionBtn {
+  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  border: var(--outline-border-width) solid var(--accent-color);
+}
+.inactiveActionBtn:hover {
+  background-color: var(--accent-color);
+}
+.linkTag {
+  @apply border-b-4 duration-300;
+  border-color: var(--underline-color);
+}
+.linkTag:hover {
+  color: var(--accent-color-hover);
+  border-color: var(--accent-color-hover);
+}
+.inactiveNavLink {
+  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  border: var(--outline-border-width) solid #fff;
+}
+.inactiveNavLink:hover {
+  border: var(--outline-border-width) solid var(--accent-color);
+  background-color: var(--accent-color);
+}
+.topNavbar {
+  @apply w-max flex bg-white justify-center items-center p-1 rounded-full;
+  box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
+}
+.topNavbar a {
+  @apply mx-0.5;
+}
+.websiteName,
+.searchBtn {
+  @apply rounded-full bg-white py-2 px-5 font-bold cursor-pointer;
+  box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
+}
+.header {
+  @apply flex justify-between items-center px-10;
+}
+#root {
+  background: url("./assets/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  @apply w-screen h-screen;
+}
+#overlay {
+  @apply flex flex-col justify-between bg-black bg-opacity-70 w-full h-full py-5;
+}
+.categoryTag {
+  @apply bg-transparent text-white py-1.5 px-5 rounded-full duration-300 font-sans backdrop-blur bg-white bg-opacity-20;
+  border: var(--outline-border-width) solid #fff;
+}
+.homeBottomTags {
+  @apply flex flex-wrap w-3/12 pl-10;
+}
+.heading {
+  @apply text-8xl text-white w-9/12 font-serif;
+}
+.homeBottomTags a {
+  @apply m-1;
+}
+.homeMiddleDiv {
+  @apply flex flex-col justify-center w-full px-10;
+}
+.textUnderline {
+  @apply h-3 w-6/12;
+  background-color: var(--accent-color);
+}
