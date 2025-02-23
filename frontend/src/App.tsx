@@ -1,42 +1,20 @@
-import ActionButton from "./components/ActionButton";
-import Header from "./components/Header";
-import LinkTag from "./components/LinkTag";
+import Home from "./Pages/Home";
+//import About from "./Pages/About";
+import Admin from "./Pages/Admin";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+//import Projects from "./Pages/Projects";
 import Navbar from "./components/Navbar";
-import TagContainer from "./components/TagContainer";
-import Tags from "./components/Tags";
-
 function App() {
-  let array = [
-    "MongoDB",
-    "SQL",
-    "HTML",
-    "CSS",
-    "Python",
-    "Java",
-    "ReactJS",
-    "Node",
-    "Django",
-    "Machine Learning",
-    "Flask",
-  ];
   return (
-    <>
-      {/* <ActionButton btnText="Home" btnType="active" />
-      <ActionButton btnText="Project" btnType="inactive" /> */}
-      {/* <LinkTag linkText="click here" /> */}
-      <div id="overlay">
-        <Header />
-        <div className="homeMiddleDiv">
-          <p className="heading">
-            Transforming challenges into solutions through technology
-          </p>
-          <div className="textUnderline"></div>
-        </div>
-        <div className="homeBottomTags">
-          <TagContainer tagTextArr={array} />
-        </div>
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
+        {/* <Route path="/about" element={<About />} /> */}
+        {/* <Route path="/contact" element={<Contact />} /> */}
+      </Routes>
+    </Router>
   );
 }
 export default App;

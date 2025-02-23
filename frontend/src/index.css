@@ -19,10 +19,11 @@
 }
 .inactiveActionBtn {
   @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
-  border: var(--outline-border-width) solid var(--accent-color);
+  border: var(--outline-border-width) solid #fff;
 }
 .inactiveActionBtn:hover {
   background-color: var(--accent-color);
+  border-color: var(--accent-color);
 }
 .linkTag {
   @apply border-b-4 duration-300;
@@ -45,15 +46,25 @@
   box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
 }
 .topNavbar a {
-  @apply mx-0.5;
+  @apply ml-1;
+}
+.topNavbar a:first-child {
+  @apply ml-0;
 }
 .websiteName,
 .searchBtn {
-  @apply rounded-full bg-white py-2 px-5 font-bold cursor-pointer;
+  @apply rounded-full bg-white py-2 px-5 font-bold cursor-pointer duration-300;
   box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
 }
+/* .searchBtn {
+  @apply duration-300;
+  width: 0;
+} */
+.searchBtn.show {
+  width: 200px;
+}
 .header {
-  @apply flex justify-between items-center px-10;
+  @apply flex justify-between items-center px-10 fixed z-50 w-screen;
 }
 #root {
   background: url("./assets/bg.png");
@@ -83,4 +94,58 @@
 .textUnderline {
   @apply h-3 w-6/12;
   background-color: var(--accent-color);
+}
+.cardPageContainer,
+.cardPageContainerBtm {
+  @apply flex flex-wrap w-screen bg-gray-900 justify-center py-10;
+}
+.cardPageContainerTop p {
+  @apply py-2 text-5xl uppercase text-white text-justify font-serif;
+}
+.cardTagsContainer {
+  @apply flex justify-end;
+}
+.cardTitle {
+  @apply py-2 text-2xl text-justify font-serif;
+}
+.cardDescription {
+  @apply pb-6;
+}
+.cardContainer {
+  @apply bg-white flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.cardContainer .categoryTag {
+  @apply bg-transparent text-black py-1.5 px-5 mx-1 rounded-full duration-300 font-sans backdrop-blur bg-white bg-opacity-20;
+  border: var(--outline-border-width) solid #000;
+}
+.cardContainer .inactiveActionBtn {
+  @apply bg-gray-200 hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  border: var(--outline-border-width) solid rgb(209 213 219);
+}
+.cardContainer .inactiveActionBtn:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+.searchBtn input {
+  @apply mx-2 px-2 font-sans border-b-2 border-white duration-300;
+  outline: none;
+}
+input:focus {
+  border-color: var(--accent-color);
+}
+
+/*Admin Page*/
+.inputField {
+  @apply flex flex-col content-start p-2 bg-white m-2;
+}
+.inputField span {
+  @apply px-2;
+}
+.inputField input {
+  @apply py-1 px-2 border-b-2 duration-300 outline-none;
+}
+.inputField input:focus {
+  border-color: var(--accent-color);
 }
