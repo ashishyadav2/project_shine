@@ -1,0 +1,28 @@
+import { useState } from "react";
+import axios from "axios";
+
+export const useProjectPageData = () => {
+  const [projectData, setProjectData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getProjectData = () => {
+    setLoading(true);
+    axios
+      .get("http://localhost:8000/api/")
+      .then((response) => {
+        console.log(response.data);
+        setProjectData(response.data);
+        setError(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Something went wrong while fetching project data.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  return { projectData, loading, error, getProjectData };
+};

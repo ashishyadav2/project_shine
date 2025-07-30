@@ -5,6 +5,7 @@ interface TagContainerProps {
 }
 
 const TagContainer = ({ tagTextArr }: TagContainerProps) => {
+  if (!Array.isArray(tagTextArr)) return null;
   return (
     <>
       {tagTextArr.map((item, index) => (

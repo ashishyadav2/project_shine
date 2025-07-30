@@ -23,11 +23,8 @@ const Homes = () => {
   ];
   return (
     <>
-      {/* <ActionButton btnText="Home" btnType="active" />
-          <ActionButton btnText="Project" btnType="inactive" /> */}
-      {/* <LinkTag linkText="click here" /> */}
       <div id="overlay">
-        <Header />
+        <Header isActive="home" />
         <div className="homeMiddleDiv">
           <p className="heading">
             Transforming challenges into solutions through technology

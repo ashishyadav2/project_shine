@@ -4,6 +4,7 @@ import Admin from "./Pages/Admin";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //import Projects from "./Pages/Projects";
 import Navbar from "./components/Navbar";
+import Projects from "./Pages/Projects";
 function App() {
   return (
     <Router>
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/projects" element={<Projects />} />
         {/* <Route path="/about" element={<About />} /> */}
         {/* <Route path="/contact" element={<Contact />} /> */}
       </Routes>

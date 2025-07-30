@@ -1,4 +1,5 @@
 import json
+import re
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -69,7 +70,7 @@ class ReactView(APIView):
             return Response({"message": "error occurred"})
             
     def patch(self,request,form_doc_id):
-        print(request.data, form_doc_id)
+        print(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
         try:
             client = MongoClient(os.getenv("DB_URI")) 
             db = client[os.getenv("DB_NAME")]
@@ -77,12 +78,21 @@ class ReactView(APIView):
             gfs = gridfs.GridFS(db)
             existing_record = collection.find_one({"_id": ObjectId(form_doc_id)})
             if existing_record:                
-                print(existing_record)
+                print(f"DB>> {existing_record}\n")
                 update_fields = {}
-                update_fields["card_title"] = request.data["title"]
-                update_fields["card_desc"] = request.data["desc"]
-                update_fields["card_git_link"] = request.data["github_url"]
-                update_fields["card_tags"] = request.data["tags"]
+                update_fields["card_title"] = request.data.get("title","")
+                update_fields["card_desc"] = request.data.get("desc","")
+                update_fields["card_git_link"] = request.data.get("github_url","")
+                update_fields["card_tags"] = request.data.get("tags","")
+                tags = request.data.get("tags", "")
+                if isinstance(tags, str) and tags.strip():
+                    update_fields["card_tags"] = re.split(r'\s*,\s*', tags)
+                elif isinstance(tags, list):
+                    update_fields["card_tags"] = [tag for tag in tags if tag.strip()] or ["No category"]
+                else:
+                    update_fields["card_tags"] = ["untagged"]
+                 
+                print(f"modified fields>> {update_fields}")  
                 if not str(request.data["img_url"]).endswith("image_placeholder.jpg"):
                     old_url_arr = request.data["img_url"].split(":")
                     isImageDeleted = False
@@ -92,7 +102,7 @@ class ReactView(APIView):
                         update_fields["card_img_id"] = new_img_id
                         isImageDeleted = gfs.delete(ObjectId(old_img_id))
                     except Exception as ex:
-                        pass
+                        print(f"Exception: {ex}\n")
                     if not isImageDeleted:
                         old_url_arr = request.data["img_url"].split(":")
                         new_img_id = old_url_arr[-1]
@@ -107,7 +117,7 @@ class ReactView(APIView):
                         else:
                             print("No changes made to the record")
                             return Response({"message": "No changes made to the record along with image"})
-                else:          
+                else:        
                     result = collection.update_one(
                         {"_id": ObjectId(form_doc_id)},
                         {"$set": update_fields}
@@ -123,7 +133,30 @@ class ReactView(APIView):
         except Exception as e:
             print(e)
             return Response({"error": str(e)}, status=500)
+      
+class RealTimeSearchView(APIView):
+    def get(self,request):
+        client = MongoClient(os.getenv("DB_URI")) 
+        db = client[os.getenv("DB_NAME")]
+        collection = db[os.getenv("DB_TABLE")]
+            
+        query = request.GET.get('q', '')
+        if not query:
+            return Response([])
         
+        # regex = re.compile(f".*{re.escape(query)}.*", re.IGNORECASE)
+        # regex = {
+        # "$text": {
+        #             "$search": query
+        #         }}
+        results = list(collection.find({ "$text": { "$search": query } }).limit(10))  
+        print(results)
+        for item in results:
+            item["_id"] = str(item["_id"])
+            item["card_img_id"] = f'http://localhost:8000/image/{item.get("card_img_id","")}/'
+
+        return Response(results)
+    
 class ImageUploadView(APIView):
     db_client = MongoClient(os.getenv("DB_URI"))
     db = db_client[os.getenv("DB_NAME")]

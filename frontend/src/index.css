@@ -4,12 +4,41 @@
 
 :root {
   --accent-color: #2962ff;
+  --accent-color-light: #bbdefb;
+  --accent-color-dark: #0d47a1;
   --accent-color-hover: #0d47a1;
   --outline-border-width: 2px;
   --underline-color: #1de9b6;
+  --title-font: "Mogra", system-ui;
+  --body-font: "Montserrat", sans-serif;
+  --ui-font: "Varela Round", sans-serif;
+  --bg-white: #fafafa;
+  --border-radius-sm: 5px;
+  --border-radius-md: 15px;
+  --border-radius-lg: 25px;
+  --font-lg: 3rem;
+  --font-md: 1.2rem;
+  --font-xs: 0.9rem;
+  --error: #f44336;
+  --error-dark: #b71c1c;
+  --success: #2e7d32;
+  --warn: #ffc107;
+  --info: #1a237e;
+  --black: #000000;
+  --gray: #333333;
+  --light-gray: #eeeeee;
+  --gray-md: #777777;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* border: 1px solid black; */
 }
 .activeActionBtn {
-  @apply hover:bg-blue-700 text-white py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  @apply hover:bg-blue-700 text-white py-1 px-5 rounded-full duration-300 uppercase;
   background-color: var(--accent-color);
   border: var(--outline-border-width) solid var(--accent-color);
 }
@@ -18,7 +47,7 @@
   border: var(--outline-border-width) solid var(--accent-color-hover);
 }
 .inactiveActionBtn {
-  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
   border: var(--outline-border-width) solid #fff;
 }
 .inactiveActionBtn:hover {
@@ -34,12 +63,13 @@
   border-color: var(--accent-color-hover);
 }
 .inactiveNavLink {
-  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
+  @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
   border: var(--outline-border-width) solid #fff;
 }
 .inactiveNavLink:hover {
-  border: var(--outline-border-width) solid var(--accent-color);
-  background-color: var(--accent-color);
+  border: var(--outline-border-width) solid var(--accent-color-light);
+  background-color: var(--accent-color-light);
+  color: var(--accent-color-dark);
 }
 .topNavbar {
   @apply w-max flex bg-white justify-center items-center p-1 rounded-full;
@@ -64,19 +94,53 @@
   width: 200px;
 }
 .header {
-  @apply flex justify-between items-center px-10 fixed z-50 w-screen;
+  @apply fixed flex justify-between items-center px-10 fixed z-50 w-screen py-5;
 }
 #root {
-  background: url("./assets/bg.png");
+  /* background: url("./assets/bg.png");
   background-repeat: no-repeat;
-  background-size: cover;
-  @apply w-screen h-screen;
+  background-size: cover; */
+  background-color: var(--bg-white);
 }
 #overlay {
-  @apply flex flex-col justify-between bg-black bg-opacity-70 w-full h-full py-5;
+  @apply flex flex-col justify-between bg-black bg-opacity-20 w-full h-full;
+}
+.centerAbsolute {
+  /* top: 50%;
+  left: 50%;
+  transform: translate(-50%, 0); */
+}
+.cardOverlay {
+  @apply absolute w-full;
+  height: 45%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* transform: translate(-50%, -50%); */
+  background-image: linear-gradient(to top, transparent, black);
+  /* background: transparent; */
+  /* background: #f00; */
+  z-index: -1;
+}
+/* .cardContainer:hover .cardOverlay {
+  @apply backdrop-blur-md saturate-100; */
+/* background: rgba(26, 35, 126, 0.75); */
+/* background: #fff; */
+/* } */
+.cardBgImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: filter 0.3s ease;
+  z-index: -2;
 }
 .categoryTag {
-  @apply bg-transparent text-white py-1.5 px-5 rounded-full duration-300 font-sans backdrop-blur bg-white bg-opacity-20;
+  @apply bg-transparent text-white py-1.5 px-5 rounded-full duration-300  backdrop-blur bg-white bg-opacity-20;
   border: var(--outline-border-width) solid #fff;
 }
 .homeBottomTags {
@@ -97,39 +161,62 @@
 }
 .cardPageContainer,
 .cardPageContainerBtm {
-  @apply flex flex-wrap w-screen bg-gray-900 justify-center py-10;
+  @apply flex flex-wrap w-full bg-gray-900 justify-center py-10;
 }
 .cardPageContainerTop p {
   @apply py-2 text-5xl uppercase text-white text-justify font-serif;
 }
 .cardTagsContainer {
-  @apply flex justify-end;
+  @apply flex justify-end flex-wrap;
 }
 .cardTitle {
-  @apply py-2 text-2xl text-justify font-serif;
+  @apply py-2 text-2xl text-justify font-serif mt-48;
 }
 .cardDescription {
   @apply pb-6;
 }
 .cardContainer {
-  @apply bg-white flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5;
-  background-repeat: no-repeat;
-  background-size: cover;
+  @apply flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5 items-stretch duration-300;
+  border: var(--outline-border-width) solid var(--gray-md);
+  /* background-repeat: no-repeat;
+  background-size: cover; */
+  background-color: var(--white);
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+.cardContainer:hover {
+  /* @apply flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5 text-black items-stretch; */
+  border: var(--outline-border-width) solid var(--accent-color);
+}
+.cardContent {
+  @apply flex flex-col justify-between;
 }
 .cardContainer .categoryTag {
-  @apply bg-transparent text-black py-1.5 px-5 mx-1 rounded-full duration-300 font-sans backdrop-blur bg-white bg-opacity-20;
-  border: var(--outline-border-width) solid #000;
+  @apply text-black py-1 px-4 mx-1 rounded-full duration-300 bg-white my-1 lowercase outline-none;
+  font-family: var(--ui-font);
+  border: none;
+  background-color: var(--light-gray);
+}
+.cardContainer .categoryTag:hover {
+  @apply text-black py-1 px-4 mx-1 rounded-full duration-300 bg-white my-1 lowercase;
+  font-family: var(--ui-font);
+  color: var(--bg-white);
+  background-color: var(--accent-color);
+  border: none;
 }
 .cardContainer .inactiveActionBtn {
-  @apply bg-gray-200 hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase font-sans;
-  border: var(--outline-border-width) solid rgb(209 213 219);
+  @apply bg-gray-200 hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
+  border: var(--outline-border-width) solid var(--gray-md);
+  /* border: none; */
+  font-family: var(--ui-font);
 }
 .cardContainer .inactiveActionBtn:hover {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
 }
 .searchBtn input {
-  @apply mx-2 px-2 font-sans border-b-2 border-white duration-300;
+  @apply mx-2 px-2  border-b-2 border-white duration-300;
   outline: none;
 }
 input:focus {
@@ -138,7 +225,8 @@ input:focus {
 
 /*Admin Page*/
 .inputField {
-  @apply flex flex-col content-start p-2 bg-white m-2;
+  @apply flex flex-col content-start py-2 bg-white my-2  font-ui;
+  /* border: 1px solid black; */
 }
 .inputField span {
   @apply px-2;
@@ -148,4 +236,216 @@ input:focus {
 }
 .inputField input:focus {
   border-color: var(--accent-color);
+}
+/* admin page */
+.adminFormContainer {
+  @apply flex justify-center pt-20 items-start;
+  width: 100%;
+  height: auto;
+}
+.adminFormContainer button {
+  @apply mt-1;
+}
+.adminFormShow .inactiveActionBtn {
+  @apply mt-1;
+}
+.adminFormShow .inactiveActionBtn:hover {
+  background-color: var(--error);
+  border-color: var(--error);
+}
+.adminForm {
+  @apply bg-white w-5/6 px-10 py-10 flex flex-col items-center fixed;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+  border-radius: var(--border-radius-md);
+  transform: translate(0, -200%);
+  z-index: 5;
+}
+.adminForm textarea {
+  @apply py-1 px-2 border-2 duration-300 outline-none;
+  border-radius: var(--border-radius-sm);
+  resize: none;
+}
+.adminFormShow textarea {
+  @apply py-1 px-2 border-2 duration-300 outline-none;
+  border-radius: var(--border-radius-sm);
+  resize: none;
+}
+.adminFormShow textarea:focus {
+  border-color: var(--accent-color);
+}
+.adminFormShow {
+  @apply bg-white w-5/6 px-12 py-10 flex flex-col items-center fixed;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+  border-radius: var(--border-radius-md);
+  z-index: 15;
+  transform: translate(0, 0);
+}
+.adminLRContainer {
+  @apply w-full flex justify-between py-10;
+}
+.adminLeft {
+  width: 55%;
+}
+.adminRight {
+  width: 40%;
+}
+.adminFormHeader {
+  @apply font-body flex w-full pt-7 justify-start items-center;
+  font-size: var(--font-lg);
+}
+/* # Image Upload */
+.imagePreview {
+  @apply w-full mb-5;
+  border: 5px dashed rgb(209 213 219);
+}
+.imagePreviewActive {
+  @apply w-full mb-5;
+  border: 5px dashed var(--accent-color);
+}
+.imagePreview .inputField {
+  display: none;
+}
+.imageUploadContainer .activeActionBtn {
+  @apply text-white py-1.5 px-5 rounded-full duration-300 capitalize;
+  cursor: pointer;
+}
+.imageUploadContainer .inactiveActionBtn {
+  @apply text-white py-1 px-5 rounded-full duration-300 capitalize ml-3;
+  background-color: var(--error);
+  border: var(--outline-border-width) solid var(--error);
+}
+.imageUploadContainer .inactiveActionBtn:hover {
+  @apply text-white py-1 px-5 rounded-full duration-300 capitalize;
+  border: var(--outline-border-width) solid var(--error-dark);
+  background-color: var(--error-dark);
+}
+/* admin page all project section */
+.cardPageContainerBtmAdmin {
+  @apply w-full flex flex-wrap justify-center;
+  /* background: #acc; */
+}
+.cardPageContainerBtmAdmin .cardContainer {
+  @apply bg-white flex flex-col items-stretch rounded-lg px-5 py-7 mx-2 mb-4 mt-0 shadow-lg w-full md:w-1/2 lg:w-1/4;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  /* width: 28%; */
+  overflow: hidden;
+  z-index: 2;
+}
+
+.cardActions .inactiveActionBtn:not(:first-child) {
+  @apply ml-2;
+}
+/* admin page search region */
+.searchRegionAdmin {
+  @apply fixed w-2/6;
+  transform: translate(0, -100%);
+  z-index: 6;
+}
+.searchRegionAdmin .searchBar {
+  @apply w-full flex justify-between items-center;
+}
+.searchBar .activeActionBtn {
+  background: var(--accent-color);
+}
+.searchBar .inputField {
+  @apply w-full mr-2 px-2 rounded;
+  background: var(--bg-white);
+}
+.searchBar .inputField input {
+  @apply bg-transparent;
+}
+.cardPageContainerBtmAdmin .activeActionBtn {
+  @apply fixed bottom-4 right-4 px-5 py-3.5 z-10;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
+    rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
+}
+/* popup box */
+.popUpContainer {
+  @apply fixed top-4 right-4 z-50 grid w-1/6 p-3;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  grid-gap: 10px;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
+    rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
+}
+.popUpIcon {
+  grid-column: 1/2;
+  grid-row: 1/2;
+}
+.popUpMsg {
+  grid-column: 2/3;
+  grid-row: 1/2;
+}
+.popUpIndicator {
+  @apply p-1;
+  background-color: var(--black);
+  grid-column: 1/3;
+  grid-row: 2/3;
+}
+.pSuccess {
+  background-color: var(--success);
+  color: var(--bg-white);
+}
+.pSuccess .popUpIndicator {
+  background-color: var(--bg-white);
+}
+.pError {
+  background-color: var(--error);
+  color: var(--bg-white);
+}
+.pError .popUpIndicator {
+  background-color: var(--bg-white);
+}
+.pInfo {
+  background-color: var(--info);
+  color: var(--bg-white);
+}
+.pInfo .popUpIndicator {
+  background-color: var(--bg-white);
+}
+.pWarn {
+  background-color: var(--warn);
+}
+/* delete confirm pop up */
+.confirmDeleteBackdrop {
+  @apply h-screen w-full fixed top-0 left-0 flex justify-center items-center z-50 backdrop-blur;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+.confirmDeleteContainer {
+  @apply bg-white px-3 py-5 grid w-1/6;
+  border-radius: var(--border-radius-md);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+}
+.confirmDeleteHeader {
+  @apply pb-5 px-3;
+  grid-column: 1/3;
+  grid-row: 1/2;
+}
+.confDelTitle {
+  font-size: var(--font-md);
+}
+.confDelText {
+  @apply break-all;
+  font-size: var(--font-xs);
+  color: var(--gray);
+}
+.confirmDeleteContainer button {
+  @apply mx-2;
+}
+.confirmDeleteContainer .inactiveActionBtn {
+  border: var(--outline-border-width) solid var(--accent-color-hover);
+  grid-column: 1/2;
+  grid-row: 2/3;
+}
+.confirmDeleteContainer .activeActionBtn {
+  grid-column: 2/3;
+  grid-row: 2/3;
+}
+/* category on search */
+.activeCategoryTag {
+  background-color: var(--accent-color);
+  color: var(--white);
 }
