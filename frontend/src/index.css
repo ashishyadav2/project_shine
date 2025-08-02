@@ -12,7 +12,7 @@
   --title-font: "Mogra", system-ui;
   --body-font: "Montserrat", sans-serif;
   --ui-font: "Varela Round", sans-serif;
-  --bg-white: #fafafa;
+  --bg-white: #e3f2fd;
   --border-radius-sm: 5px;
   --border-radius-md: 15px;
   --border-radius-lg: 25px;
@@ -48,11 +48,11 @@
 }
 .inactiveActionBtn {
   @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
-  border: var(--outline-border-width) solid #fff;
+  /* border: var(--outline-border-width) solid #fff; */
 }
 .inactiveActionBtn:hover {
   background-color: var(--accent-color);
-  border-color: var(--accent-color);
+  box-shadow: rgba(41, 98, 255, 0.8) 0px 10px 15px -5px;
 }
 .linkTag {
   @apply border-b-4 duration-300;
@@ -100,6 +100,11 @@
   /* background: url("./assets/bg.png");
   background-repeat: no-repeat;
   background-size: cover; */
+  /* @apply h-full; */
+  /* background-color: var(--bg-white); */
+}
+body {
+  @apply w-full h-full;
   background-color: var(--bg-white);
 }
 #overlay {
@@ -176,8 +181,8 @@
   @apply pb-6;
 }
 .cardContainer {
-  @apply flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5 items-stretch duration-300;
-  border: var(--outline-border-width) solid var(--gray-md);
+  @apply flex flex-col w-3/12 rounded-lg px-5 py-7 m-5 items-stretch duration-300;
+  /* border: var(--outline-border-width) solid var(--gray-md); */
   /* background-repeat: no-repeat;
   background-size: cover; */
   background-color: var(--white);
@@ -187,19 +192,22 @@
 }
 .cardContainer:hover {
   /* @apply flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5 text-black items-stretch; */
-  border: var(--outline-border-width) solid var(--accent-color);
+  /* border: var(--outline-border-width) solid var(--accent-color); */
+  /* transform: translateY(-10px); */
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 .cardContent {
   @apply flex flex-col justify-between;
 }
 .cardContainer .categoryTag {
-  @apply text-black py-1 px-4 mx-1 rounded-full duration-300 bg-white my-1 lowercase outline-none;
+  @apply text-black py-0.5 px-3 mx-1 rounded-full duration-300 bg-white my-1 lowercase outline-none;
+  font-size: var(--font-xs);
   font-family: var(--ui-font);
   border: none;
   background-color: var(--light-gray);
 }
 .cardContainer .categoryTag:hover {
-  @apply text-black py-1 px-4 mx-1 rounded-full duration-300 bg-white my-1 lowercase;
+  @apply text-black py-0.5 px-3 mx-1 rounded-full duration-300 bg-white my-1 lowercase;
   font-family: var(--ui-font);
   color: var(--bg-white);
   background-color: var(--accent-color);
@@ -207,7 +215,7 @@
 }
 .cardContainer .inactiveActionBtn {
   @apply bg-gray-200 hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
-  border: var(--outline-border-width) solid var(--gray-md);
+  /* border: var(--outline-border-width) solid var(--gray-md); */
   /* border: none; */
   font-family: var(--ui-font);
 }
@@ -239,9 +247,7 @@ input:focus {
 }
 /* admin page */
 .adminFormContainer {
-  @apply flex justify-center pt-20 items-start;
-  width: 100%;
-  height: auto;
+  @apply w-full h-full flex justify-center pt-20 items-start;
 }
 .adminFormContainer button {
   @apply mt-1;
@@ -321,17 +327,23 @@ input:focus {
 }
 /* admin page all project section */
 .cardPageContainerBtmAdmin {
-  @apply w-full flex flex-wrap justify-center;
+  @apply w-full flex flex-wrap justify-center mt-20;
   /* background: #acc; */
 }
 .cardPageContainerBtmAdmin .cardContainer {
-  @apply bg-white flex flex-col items-stretch rounded-lg px-5 py-7 mx-2 mb-4 mt-0 shadow-lg w-full md:w-1/2 lg:w-1/4;
+  @apply bg-white flex rounded-lg px-5 py-7 mx-2 mb-4 mt-0 w-full md:w-1/2 lg:w-1/4;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
   /* width: 28%; */
   overflow: hidden;
   z-index: 2;
+}
+.cardPageContainerBtmAdmin .cardContainer:hover {
+  @apply bg-white flex flex-col items-stretch rounded-lg px-5 py-7 mx-2 mb-4 mt-0 w-full md:w-1/2 lg:w-1/4;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 
 .cardActions .inactiveActionBtn:not(:first-child) {
@@ -340,24 +352,31 @@ input:focus {
 /* admin page search region */
 .searchRegionAdmin {
   @apply fixed w-2/6;
-  transform: translate(0, -100%);
+  transform: translate(0, -50%);
   z-index: 6;
 }
 .searchRegionAdmin .searchBar {
-  @apply w-full flex justify-between items-center;
+  @apply w-full flex justify-between items-center my-5;
 }
 .searchBar .activeActionBtn {
+  @apply py-1;
   background: var(--accent-color);
 }
 .searchBar .inputField {
-  @apply w-full mr-2 px-2 rounded;
-  background: var(--bg-white);
+  @apply w-full mr-2 px-0 py-0 rounded-full;
+  background: var(--error);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 }
 .searchBar .inputField input {
-  @apply bg-transparent;
+  @apply bg-white rounded-full px-4 py-1;
+  border: var(--outline-border-width) solid var(--gray-md);
+}
+.searchBar .inputField input:focus {
+  border: var(--outline-border-width) solid var(--accent-color);
 }
 .cardPageContainerBtmAdmin .activeActionBtn {
-  @apply fixed bottom-4 right-4 px-5 py-3.5 z-10;
+  @apply fixed bottom-20 right-20 px-5 py-3.5 z-10;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
     rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
 }
@@ -448,4 +467,15 @@ input:focus {
 .activeCategoryTag {
   background-color: var(--accent-color);
   color: var(--white);
+}
+/* tags holder */
+.tagsBuilder {
+  @apply flex;
+}
+.tagsHolder {
+  @apply flex items-center;
+}
+.tagsHolder span {
+  @apply rounded-full px-2 py-1 mx-1 font-body text-white;
+  background-color: var(--accent-color);
 }

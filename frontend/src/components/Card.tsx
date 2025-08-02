@@ -1,7 +1,12 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ActionButton from "./ActionButton";
 import TagContainer from "./TagContainer";
-import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChartLine,
+  faCircleQuestion,
+  faPen,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 interface CardProps {
   cardTags: string[];
   cardTitle: string;
@@ -54,11 +59,23 @@ const Card = ({
                 btnText={<FontAwesomeIcon icon={faPen} />}
                 btnType={"inactive"}
                 btnFun={controller}
+                tooltip={"Edit Post"}
               />
               <ActionButton
                 btnText={<FontAwesomeIcon icon={faTrash} />}
                 btnType={"inactive"}
                 btnFun={deleteController}
+                tooltip={"Delete Post. This action can't be un done"}
+              />
+              <ActionButton
+                btnText={<FontAwesomeIcon icon={faChartLine} />}
+                btnType={"inactive"}
+                tooltip={"Post Analytics"}
+              />
+              <ActionButton
+                btnText={<FontAwesomeIcon icon={faCircleQuestion} />}
+                btnType={"inactive"}
+                tooltip={"Not implemented yet :("}
               />
             </>
           )}

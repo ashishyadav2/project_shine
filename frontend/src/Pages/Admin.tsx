@@ -88,13 +88,20 @@ const Admin = () => {
                 value={formData.github_url}
                 name="github_url"
               />
-              <InputField
-                type="text"
-                fieldName="Tags"
-                inputFunc={handleChange}
-                value={formData.tags}
-                name="tags"
-              />
+              <div className="tagsBuilder">
+                <div className="tagsHolder">
+                  <span>HTMl</span>
+                  <span>CSS</span>
+                  <span>JS</span>
+                </div>
+                <InputField
+                  type="text"
+                  fieldName="Tags"
+                  inputFunc={handleChange}
+                  value={formData.tags}
+                  name="tags"
+                />
+              </div>
             </div>
             <div className="adminRight">
               <div className="imageUploadContainer">

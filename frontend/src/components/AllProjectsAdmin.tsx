@@ -133,6 +133,7 @@ const AllProjectsAdmin = ({
           />
           <ActionButton
             btnText={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            btnType={"active"}
             btnFun={() => {
               fetchResults(query);
             }}
