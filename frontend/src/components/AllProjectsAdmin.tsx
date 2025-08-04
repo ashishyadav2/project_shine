@@ -149,11 +149,7 @@ const AllProjectsAdmin = ({
               cardTags={item.card_tags}
               cardTitle={item.card_title}
               cardDescription={item.card_desc}
-              cardBgImgUrl={
-                item.card_img_id
-                  ? item.card_img_id
-                  : "https://static.addtoany.com/images/dracaena-cinnabari.jpg"
-              }
+              cardBgImgUrl={item.card_img_id ? item.card_img_id : bgImage}
               cardGitLink={item.card_git_link}
               isEditing={true}
               controller={() => {

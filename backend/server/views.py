@@ -161,6 +161,7 @@ class ImageUploadView(APIView):
     db_client = MongoClient(os.getenv("DB_URI"))
     db = db_client[os.getenv("DB_NAME")]
     gfs = gridfs.GridFS(db)
+    flag = True
     def get(self, request, image_id):
         try:
             file = self.gfs.get(ObjectId(image_id))
@@ -168,7 +169,9 @@ class ImageUploadView(APIView):
             response['Content-Disposition'] = f'inline; filename="{file.filename}"'
             return response
         except:
-            raise Http404("Image not found")
+            flag = False
+            # raise Http404("Image not found")
+            return HttpResponse("Image not found", status=404)
     
     def post(self,request):
         image_file = request.FILES.get("imageFile")

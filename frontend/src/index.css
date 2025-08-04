@@ -349,6 +349,9 @@ input:focus {
 .cardActions .inactiveActionBtn:not(:first-child) {
   @apply ml-2;
 }
+.cardActions {
+  @apply flex flex-wrap justify-start items-start;
+}
 /* admin page search region */
 .searchRegionAdmin {
   @apply fixed w-2/6;
@@ -470,12 +473,26 @@ input:focus {
 }
 /* tags holder */
 .tagsBuilder {
-  @apply flex;
+  @apply flex flex-col font-ui;
 }
 .tagsHolder {
-  @apply flex items-center;
+  @apply flex items-center w-full flex-wrap;
 }
 .tagsHolder span {
-  @apply rounded-full px-2 py-1 mx-1 font-body text-white;
+  @apply rounded-full px-2.5 py-0 mx-1 mt-2 font-body text-white flex justify-center items-center;
+  font-size: var(--font-xs);
   background-color: var(--accent-color);
+  line-height: 2rem;
+  text-transform: lowercase;
+}
+.tagsHolder span button {
+  @apply ml-2 duration-300 py-0.5 px-1;
+  font-size: var(--font-xs);
+  line-height: 1rem;
+}
+.tagsHolder span button:hover {
+  @apply ml-2 rounded-full bg-white text-black;
+}
+.tagsBuilder .inputField {
+  @apply py-0;
 }

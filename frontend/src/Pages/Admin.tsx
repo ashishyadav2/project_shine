@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "../components/InputField";
 import ActionButton from "../components/ActionButton";
 import { useAdminFormHandler } from "../EventsHandler/HandleAdminForm";
@@ -6,6 +6,8 @@ import AllProjectsAdmin from "../components/AllProjectsAdmin";
 import Popup from "../Utilities/Popup";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
 import popup from "../Utilities/Popup";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 const Admin = () => {
   const [isAdminFormVisible, setIsAdminFormVisible] = useState("adminForm");
 
@@ -30,6 +32,53 @@ const Admin = () => {
     pShowHide,
     Notify,
   } = useAdminFormHandler();
+  const [tagsArr, setTagsArr] = useState<string[]>([]);
+  const [tagInputValue, setTagInputValue] = useState<string>("");
+  let fetchedTags: string[] = [];
+  const handleKeyDown = (e: any) => {
+    if (e.key === "," && tagInputValue.trim() !== "") {
+      e.preventDefault();
+      const tag = tagInputValue.trim();
+      if (tag.startsWith(",")) {
+        Notify("Invalid tag format", "pWarn");
+        return;
+      } else if (tagsArr.length >= 7) {
+        Notify("Max tag limit reached", "pWarn");
+        return;
+      }
+      if (!tagsArr.includes(tag)) {
+        if (tag.length > 15) {
+          Notify("A tag cannot have more than 15 characters", "pWarn");
+          return;
+        }
+        const updatedTags = [...tagsArr, tag];
+        setTagsArr(updatedTags);
+        setFormData({ ...formData, tags: updatedTags.join(",") });
+        // console.log(formData);
+      } else {
+        Notify(`'${tag}' tag already exists`, "pWarn");
+      }
+      setTagInputValue("");
+    }
+  };
+  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagInputValue(e.target.value.trim());
+  };
+  const removeTag = (index: any) => {
+    setTagsArr(tagsArr.filter((_, i) => i !== index));
+  };
+  useEffect(() => {
+    if (isEditBtn && formData.tags) {
+      const existingTags = formData.tags
+        .toString()
+        .split(",")
+        .filter((t) => t.trim() !== "");
+      setTagsArr(existingTags);
+    }
+    if (!formData.tags) {
+      setTagsArr([]);
+    }
+  }, [isEditBtn, formData.tags]);
   return (
     <>
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
@@ -89,18 +138,41 @@ const Admin = () => {
                 name="github_url"
               />
               <div className="tagsBuilder">
+                <label htmlFor="tags">Tags</label>
                 <div className="tagsHolder">
-                  <span>HTMl</span>
-                  <span>CSS</span>
-                  <span>JS</span>
+                  {tagsArr.map((tagName, index) => (
+                    <span key={index}>
+                      {tagName}
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
+                          removeTag(index);
+                        }}
+                      >
+                        {<FontAwesomeIcon icon={faXmark} />}
+                      </button>
+                    </span>
+                  ))}
                 </div>
-                <InputField
+                <div className="inputField">
+                  <input
+                    type="text"
+                    name="tags"
+                    onChange={handleTagInputChange}
+                    value={tagInputValue}
+                    id="tags"
+                    title="Tags"
+                    onKeyDown={handleKeyDown}
+                  ></input>
+                </div>
+                {/* <InputField
                   type="text"
                   fieldName="Tags"
                   inputFunc={handleChange}
                   value={formData.tags}
                   name="tags"
-                />
+                /> */}
               </div>
             </div>
             <div className="adminRight">

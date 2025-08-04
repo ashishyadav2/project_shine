@@ -153,6 +153,7 @@ export const useAdminFormHandler = () => {
           return;
         }
       }
+      console.log(formData);
       let uploaded_image_id = await handleUpload();
       console.log(uploaded_image_id);
       if (!uploaded_image_id) {
