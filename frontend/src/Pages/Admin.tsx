@@ -31,6 +31,7 @@ const Admin = () => {
     popupMsg,
     pShowHide,
     Notify,
+    formFlag,
   } = useAdminFormHandler();
   const [tagsArr, setTagsArr] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState<string>("");
@@ -39,8 +40,14 @@ const Admin = () => {
     if (e.key === "," && tagInputValue.trim() !== "") {
       e.preventDefault();
       const tag = tagInputValue.trim();
-      if (tag.startsWith(",")) {
-        Notify("Invalid tag format", "pWarn");
+      const tagRegex = /^[a-z]+$/g;
+      if (!tagRegex.test(tag)) {
+        Notify("Invalid tag format. Only alphabets are allowed", "pWarn");
+        setTagInputValue("");
+        return;
+      }
+      if (tag === "") {
+        Notify("Tag cannot be blank", "pWarn");
         return;
       } else if (tagsArr.length >= 7) {
         Notify("Max tag limit reached", "pWarn");
@@ -160,7 +167,7 @@ const Admin = () => {
                     type="text"
                     name="tags"
                     onChange={handleTagInputChange}
-                    value={tagInputValue}
+                    value={formFlag ? "" : tagInputValue}
                     id="tags"
                     title="Tags"
                     onKeyDown={handleKeyDown}

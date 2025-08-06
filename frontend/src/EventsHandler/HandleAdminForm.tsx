@@ -37,9 +37,17 @@ export const useAdminFormHandler = () => {
   };
 
   const handleRemove = () => {
+    // if (isEditBtn) {
+    //   Notify(
+    //     "Image removal is not allowed. You can change image but cannot remove",
+    //     "pError"
+    //   );
+    //   return;
+    // }
     setSelectedFile(null);
     setPreviewURL(bgImage);
     setActiveImgClass("imagePreview");
+    setFormData({ ...formData, img_url: bgImage });
   };
 
   const handleUpload = async (): Promise<string | null> => {
@@ -123,6 +131,7 @@ export const useAdminFormHandler = () => {
             `http://localhost:8000/api/${formId}/`,
             formData
           );
+          console.log(formData);
           console.log(response.data, "data updated");
           Notify("Post is updated", "pSuccess");
           setTimeout(() => {
@@ -158,7 +167,7 @@ export const useAdminFormHandler = () => {
       console.log(uploaded_image_id);
       if (!uploaded_image_id) {
         console.log("image upload failed");
-        Notify("Image upload failed", "pSuccess");
+        Notify("Image upload failed", "pError");
         return;
       }
       let data = {
@@ -212,5 +221,6 @@ export const useAdminFormHandler = () => {
     popupMsg,
     pShowHide,
     Notify,
+    formFlag,
   };
 };
