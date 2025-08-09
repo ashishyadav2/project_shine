@@ -6,7 +6,12 @@ import { useProjectPageData } from "../EventsHandler/HandleProjectsPage";
 import { HandleAllProjectsAdmin } from "../EventsHandler/HandleAllProjectsAdmin";
 import InputField from "./InputField";
 import ActionButton from "./ActionButton";
-import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faMagnifyingGlass,
+  faPlus,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import debounce from "lodash.debounce";
 import axios from "axios";
 import bgImage from "../assets/image_placeholder.jpg";
@@ -53,7 +58,8 @@ const AllProjectsAdmin = ({
   adminFormVisibleReactState,
 }: AllProjectsAdminProps) => {
   const { projectData, loading, error, getProjectData } = useProjectPageData();
-  const { editController, handleDelete } = HandleAllProjectsAdmin();
+  const { editController, handleDelete, copyControllerLogic } =
+    HandleAllProjectsAdmin();
 
   useEffect(() => {
     getProjectData();
@@ -84,6 +90,7 @@ const AllProjectsAdmin = ({
     });
     selectedFileReactState(null);
     imageReactState(bgImage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const fetchResults = async (searchText: string) => {
@@ -97,6 +104,10 @@ const AllProjectsAdmin = ({
     } catch (err) {
       console.error(err);
     }
+  };
+  const formatImgId = (img_url: string) => {
+    const parts = img_url.split("/");
+    return parts[parts.length - 2];
   };
   // const confirmDelete = (item: any) => {
   //   handleDelete(item.card_img_id, item.card_id);
@@ -114,14 +125,31 @@ const AllProjectsAdmin = ({
   //     console.error(err);
   //   }
   // }, 300);
+  const [expanded, setExpanded] = useState(false);
+  const expandSearchBox = () => {
+    setExpanded(true);
+  };
 
   return (
     <>
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
       <div className="searchRegionAdmin">
-        <div className="searchBar">
+        {!expanded && (
+          <div className="searchBarBox" onClick={expandSearchBox}>
+            <span>
+              <FontAwesomeIcon icon={faMagnifyingGlass} flip={"horizontal"} />
+            </span>
+            <span>Search</span>
+          </div>
+        )}
+        <div
+          className={`searchBar ${
+            expanded ? "scale-100 opacity-100" : "scale-0 opacity-0"
+          }`}
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} flip={"horizontal"} />
           <InputField
-            type={"search"}
+            type={"text"}
             placeholder={"Search"}
             value={query}
             inputFunc={(e) => {
@@ -132,7 +160,16 @@ const AllProjectsAdmin = ({
             }}
           />
           <ActionButton
-            btnText={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            id={"searchBarCloseBtn"}
+            btnText={<FontAwesomeIcon icon={faXmark} />}
+            btnType={"active"}
+            btnFun={() => {
+				setQuery("");
+              setExpanded(false);
+            }}
+          />
+          <ActionButton
+            btnText={<FontAwesomeIcon icon={faArrowRight} />}
             btnType={"active"}
             btnFun={() => {
               fetchResults(query);
@@ -153,6 +190,7 @@ const AllProjectsAdmin = ({
               cardGitLink={item.card_git_link}
               isEditing={true}
               controller={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
                 editController(
                   formReactState,
                   {
@@ -178,6 +216,27 @@ const AllProjectsAdmin = ({
                 // handleDelete(item.card_img_id, item.card_id);
                 // confirmDelete(item);
                 setDelItem(item);
+              }}
+              copyController={() => {
+                copyControllerLogic(
+                  formReactState,
+                  {
+                    card_title: item.card_title,
+                    card_desc: item.card_desc,
+                    card_git_link: item.card_git_link,
+                    card_tags: item.card_tags,
+                    card_img_id: formatImgId(item.card_img_id),
+                  },
+                  imageReactState,
+                  item.card_img_id,
+                  item.card_id,
+                  isEditBtnBool,
+                  isEditReactState,
+                  selectedFileValue,
+                  selectedFileReactState,
+                  setFormIdReactState,
+                  adminFormVisibleReactState
+                );
               }}
             />
           )

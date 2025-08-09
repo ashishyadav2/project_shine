@@ -6,6 +6,7 @@ interface ActionButtonProps {
   btnType?: "active" | "inactive";
   btnHType?: "button" | "submit" | "reset" | undefined;
   tooltip?: string | "";
+  id?: string | "";
 }
 const ActionButton = ({
   btnText,
@@ -13,6 +14,7 @@ const ActionButton = ({
   btnType = "inactive",
   btnHType,
   tooltip,
+  id,
 }: ActionButtonProps) => {
   let clsName = "inactiveActionBtn";
   if (btnType == "active") {
@@ -20,17 +22,21 @@ const ActionButton = ({
   }
   const [tooltipp, setToolTip] = useState<string | undefined>("");
   return (
-    <button
-      className={clsName}
-      type={btnHType}
-      onClick={btnFun}
-      title={tooltipp ? tooltipp : ""}
-      onMouseOver={() => {
-        setToolTip(tooltip);
-      }}
-    >
-      {btnText}
-    </button>
+    <>
+      <button
+        id={id}
+        className={clsName}
+        type={btnHType ? btnHType : "button"}
+        onClick={btnFun}
+        // title={tooltipp ? tooltipp : ""}
+        onMouseOver={() => {
+          setToolTip(tooltip);
+        }}
+      >
+        {btnText}
+        <div className="tooltip">{tooltipp ? tooltipp : ""}</div>
+      </button>
+    </>
   );
 };
 export default ActionButton;
