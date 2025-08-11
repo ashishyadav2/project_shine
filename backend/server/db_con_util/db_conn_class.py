@@ -20,3 +20,6 @@ class DBConnect:
     
     def get_grid_fs(self):
         return self.grid_fs
+    
+    def get_db_conn(self):
+        return self.db

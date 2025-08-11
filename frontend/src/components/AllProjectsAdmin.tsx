@@ -164,7 +164,7 @@ const AllProjectsAdmin = ({
             btnText={<FontAwesomeIcon icon={faXmark} />}
             btnType={"active"}
             btnFun={() => {
-				setQuery("");
+              setQuery("");
               setExpanded(false);
             }}
           />
@@ -217,27 +217,27 @@ const AllProjectsAdmin = ({
                 // confirmDelete(item);
                 setDelItem(item);
               }}
-              copyController={() => {
-                copyControllerLogic(
-                  formReactState,
-                  {
-                    card_title: item.card_title,
-                    card_desc: item.card_desc,
-                    card_git_link: item.card_git_link,
-                    card_tags: item.card_tags,
-                    card_img_id: formatImgId(item.card_img_id),
-                  },
-                  imageReactState,
-                  item.card_img_id,
-                  item.card_id,
-                  isEditBtnBool,
-                  isEditReactState,
-                  selectedFileValue,
-                  selectedFileReactState,
-                  setFormIdReactState,
-                  adminFormVisibleReactState
-                );
-              }}
+              // copyController={() => {
+              //   copyControllerLogic(
+              //     formReactState,
+              //     {
+              //       card_title: item.card_title,
+              //       card_desc: item.card_desc,
+              //       card_git_link: item.card_git_link,
+              //       card_tags: item.card_tags,
+              //       card_img_id: formatImgId(item.card_img_id),
+              //     },
+              //     imageReactState,
+              //     item.card_img_id,
+              //     item.card_id,
+              //     isEditBtnBool,
+              //     isEditReactState,
+              //     selectedFileValue,
+              //     selectedFileReactState,
+              //     setFormIdReactState,
+              //     adminFormVisibleReactState
+              //   );
+              // }}
             />
           )
         )}
@@ -274,7 +274,7 @@ const AllProjectsAdmin = ({
                 setShowDeletePopUP(false);
                 Notify("Post deleted", "pSuccess");
                 setTimeout(() => {
-                  location.reload();
+                  // location.reload();
                 }, 3000);
               }}
             />

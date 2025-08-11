@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import bgImage from "../assets/image_placeholder.jpg";
 import { HandlePopUp } from "./HandlePopUp";
+import { pull } from "lodash";
 export const useAdminFormHandler = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState<string>(bgImage);
@@ -28,11 +29,13 @@ export const useAdminFormHandler = () => {
   } = HandlePopUp();
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
+    console.log("file change: ", file);
     if (file && file.type.startsWith("image/")) {
       setSelectedFile(file);
       setPreviewURL(URL.createObjectURL(file));
       setActiveImgClass("imagePreviewActive");
       setFormData({ ...formData, img_url: previewURL });
+      console.log("selected file:", file);
     }
   };
 
@@ -66,7 +69,7 @@ export const useAdminFormHandler = () => {
       setImageId(response.data._id);
       return response.data._id;
     } catch (err) {
-      console.log(err);
+      console.log(err, "image upload failed");
       Notify("Image upload failed", "pError");
       setImageId("");
       return null;
@@ -97,7 +100,7 @@ export const useAdminFormHandler = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditBtn) {
-      console.log("edit mode");
+      console.log("inside edit mode");
       // Notify("Editing Mode");
       let isImageUploaded = false;
       let isImagePresent = selectedFile != null;
@@ -118,10 +121,10 @@ export const useAdminFormHandler = () => {
             console.log(response.data, "data updated");
             Notify("Image has been updated", "pSuccess");
             setTimeout(() => {
-              location.reload();
+              // location.reload();
             }, 2500);
           } catch (err) {
-            console.log(err);
+            console.log(err, "not able to update image");
             Notify("Unable to update image", "pError");
           }
         }
@@ -131,11 +134,11 @@ export const useAdminFormHandler = () => {
             `http://localhost:8000/api/${formId}/`,
             formData
           );
-          console.log(formData);
+          console.log("Edit mode", formData);
           console.log(response.data, "data updated");
           Notify("Post is updated", "pSuccess");
           setTimeout(() => {
-            location.reload();
+            // location.reload();
           }, 3000);
         } catch (err) {
           console.log(err);
@@ -162,10 +165,13 @@ export const useAdminFormHandler = () => {
           return;
         }
       }
-      console.log(formData);
+      console.log("Add mode", formData);
       let uploaded_image_id = await handleUpload();
-      console.log(uploaded_image_id);
+      console.log("uploaded image id", uploaded_image_id);
       if (!uploaded_image_id) {
+        console.log("image id", img_id);
+        console.log("preview url", previewURL);
+        console.log("selectedFile", selectedFile);
         console.log("image upload failed");
         Notify("Image upload failed", "pError");
         return;
@@ -177,7 +183,7 @@ export const useAdminFormHandler = () => {
         card_tags: formatTags(formData.tags),
         card_img_id: uploaded_image_id,
       };
-      console.log(data);
+      console.log("Add mode form data", data);
       if (uploaded_image_id) {
         axios
           .post("http://localhost:8000/api/", data)
@@ -189,7 +195,7 @@ export const useAdminFormHandler = () => {
               console.log("Data inserted into database");
               Notify("Post created", "pSuccess");
               setTimeout(() => {
-                location.reload();
+                // location.reload();
               }, 2500);
             }
           })

@@ -10,6 +10,7 @@ from pymongo import MongoClient
 import gridfs
 from bson import ObjectId
 from server.db_con_util.db_conn_class import DBConnect
+from server.Logger.logger_util import Logger
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -29,8 +30,10 @@ class ReactView(APIView):
         for doc in documents:
             img_id = doc.get("card_img_id", "")
             img_url = f"http://localhost:8000/image/{img_id}/" if img_id else ""
-            if doc.get("img_url","").endswith("image_placeholder.jpg"):
-                img_url = doc.get("img_url")
+            if img_url == "":
+                img_url = "http://localhost:5173/src/assets/image_placeholder.jpg"
+            # if doc.get("img_url","").endswith("image_placeholder.jpg"):
+            #     img_url = doc.get("img_url")
             output.append({
                 "card_id": str(doc.get("_id", "")),
                 "card_title": doc.get("card_title", ""),
@@ -39,9 +42,12 @@ class ReactView(APIView):
                 "card_tags": doc.get("card_tags", []),
                 "card_img_id": img_url
             })
+        # for obj in output:
+        #     print(f"get: {obj}\n\n")
         return Response(output)
         
     def post(self, request):
+        print(f"from copy: {request.data}")
         serializer = ReactSerializer(data=request.data)
         if serializer.is_valid(raise_exception = True):
             serializer.save()
@@ -70,6 +76,7 @@ class ReactView(APIView):
             
     def patch(self,request,form_doc_id):
         print(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
+        success_flag = False
         try:
             existing_record = self.collection.find_one({"_id": ObjectId(form_doc_id)})
             if existing_record:                
@@ -92,20 +99,38 @@ class ReactView(APIView):
                     update_fields["img_url"] = "http://localhost:5173/src/assets/image_placeholder.jpg"
                     
                 print(f"modified fields>> {update_fields}")  
+                # case : not image change 0
+                # case: new image uploaded 1
+                # case: image removed 2
+                imageMode = -1
                 if not str(request.data["img_url"]).endswith("image_placeholder.jpg"):
                     old_url_arr = request.data["img_url"].split(":")
+                    old_img_id = old_url_arr[2].split("/")[-2]
+                    default_img_id = old_url_arr[2].split("/")[-1]
                     isImageDeleted = False
-                    try:
-                        old_img_id = old_url_arr[2].split("/")[-2]
+                    new_img_id = None
+                    if len(old_url_arr)==3:
+                        imageMode = 0
+                    elif len(old_url_arr)==4:
+                        imageMode = 1
                         new_img_id = old_url_arr[-1]
-                        update_fields["card_img_id"] = new_img_id
-                        isImageDeleted = self.gfs.delete(ObjectId(old_img_id))
+                    else:
+                        imageMode = 2
+                    try:
+                        print(f"old_url_arr: {old_url_arr}")
+                        print(f"Old img id, {old_img_id}")
+                        if imageMode in [1,2]:
+                            if imageMode==1 and (not new_img_id):
+                                update_fields["card_img_id"] = new_img_id
+                            elif imageMode==2:
+                                update_fields["card_img_id"] = ""
+                            isImageDeleted = self.gfs.delete(ObjectId(old_img_id))
+                            print(f"is image deleted: {isImageDeleted}")
+                            
                     except Exception as ex:
                         print(f"Exception: {ex}\n")
-                    if not isImageDeleted:
-                        old_url_arr = request.data["img_url"].split(":")
-                        new_img_id = old_url_arr[-1]
-                        update_fields["card_img_id"] = new_img_id                   
+                    if isImageDeleted:
+                        print(f"\nmodified fields image>> {update_fields}")                   
                         result = self.collection.update_one(
                             {"_id": ObjectId(form_doc_id)},
                             {"$set": update_fields}
@@ -127,7 +152,9 @@ class ReactView(APIView):
                     else:
                         print("No changes made to the record")
                         return Response({"message": "No changes made to the record"})
-
+                    
+            # if success_flag:
+            #     return Response({"message": "all operation done successfully"}, status=200)
             return Response({"error": "Record not found"}, status=404)
         except Exception as e:
             print(e)
