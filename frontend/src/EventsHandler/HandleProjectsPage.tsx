@@ -9,7 +9,7 @@ export const useProjectPageData = () => {
   const getProjectData = () => {
     setLoading(true);
     axios
-      .get("http://localhost:8000/api/")
+      .get("http://localhost:8000/api/view_create_post/")
       .then((response) => {
         console.log(response.data);
         setProjectData(response.data);

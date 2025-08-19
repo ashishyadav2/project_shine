@@ -26,6 +26,9 @@ interface AllProjectsAdminProps {
       github_url: string;
       tags: string;
       img_url: string;
+      old_img_id: string;
+      new_img_id: string;
+      is_img_removed: boolean;
     }>
   >;
   formDataValue: {
@@ -34,6 +37,9 @@ interface AllProjectsAdminProps {
     github_url: string;
     tags: string;
     img_url: string;
+    old_img_id: string;
+    new_img_id: string;
+    is_img_removed: boolean;
   };
   imageReactState: React.Dispatch<React.SetStateAction<string>>;
   isEditBtnBool: boolean;
@@ -87,6 +93,9 @@ const AllProjectsAdmin = ({
       github_url: "",
       tags: "",
       img_url: "",
+      old_img_id: "",
+      new_img_id: "",
+      is_img_removed: false,
     });
     selectedFileReactState(null);
     imageReactState(bgImage);
@@ -97,7 +106,7 @@ const AllProjectsAdmin = ({
     if (!searchText) return setResults([]);
     try {
       const res = await axios.get(
-        `http://localhost:8000/search/?q=${searchText}/`
+        `http://localhost:8000/api/search/?q=${searchText}/`
       );
       setResults(res.data);
       console.log(res.data);
@@ -186,7 +195,7 @@ const AllProjectsAdmin = ({
               cardTags={item.card_tags}
               cardTitle={item.card_title}
               cardDescription={item.card_desc}
-              cardBgImgUrl={item.card_img_id ? item.card_img_id : bgImage}
+              cardBgImgUrl={item.card_img_url ? item.card_img_url : bgImage}
               cardGitLink={item.card_git_link}
               isEditing={true}
               controller={() => {
@@ -201,6 +210,7 @@ const AllProjectsAdmin = ({
                     img_url: previewImgValue,
                   },
                   imageReactState,
+                  item.card_img_url,
                   item.card_img_id,
                   item.card_id,
                   isEditBtnBool,
@@ -217,27 +227,27 @@ const AllProjectsAdmin = ({
                 // confirmDelete(item);
                 setDelItem(item);
               }}
-              // copyController={() => {
-              //   copyControllerLogic(
-              //     formReactState,
-              //     {
-              //       card_title: item.card_title,
-              //       card_desc: item.card_desc,
-              //       card_git_link: item.card_git_link,
-              //       card_tags: item.card_tags,
-              //       card_img_id: formatImgId(item.card_img_id),
-              //     },
-              //     imageReactState,
-              //     item.card_img_id,
-              //     item.card_id,
-              //     isEditBtnBool,
-              //     isEditReactState,
-              //     selectedFileValue,
-              //     selectedFileReactState,
-              //     setFormIdReactState,
-              //     adminFormVisibleReactState
-              //   );
-              // }}
+              copyController={() => {
+                copyControllerLogic(
+                  formReactState,
+                  {
+                    card_title: item.card_title,
+                    card_desc: item.card_desc,
+                    card_git_link: item.card_git_link,
+                    card_tags: item.card_tags,
+                    card_img_id: item.card_img_id,
+                  },
+                  imageReactState,
+                  item.card_img_id,
+                  item.card_id,
+                  isEditBtnBool,
+                  isEditReactState,
+                  selectedFileValue,
+                  selectedFileReactState,
+                  setFormIdReactState,
+                  adminFormVisibleReactState
+                );
+              }}
             />
           )
         )}
@@ -274,7 +284,7 @@ const AllProjectsAdmin = ({
                 setShowDeletePopUP(false);
                 Notify("Post deleted", "pSuccess");
                 setTimeout(() => {
-                  // location.reload();
+                  location.reload();
                 }, 3000);
               }}
             />

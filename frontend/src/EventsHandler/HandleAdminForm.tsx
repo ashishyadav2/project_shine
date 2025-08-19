@@ -17,6 +17,9 @@ export const useAdminFormHandler = () => {
     github_url: "",
     tags: "",
     img_url: "",
+    old_img_id: "",
+    new_img_id: "",
+    is_img_removed: false,
   });
   const {
     popType,
@@ -34,7 +37,7 @@ export const useAdminFormHandler = () => {
       setSelectedFile(file);
       setPreviewURL(URL.createObjectURL(file));
       setActiveImgClass("imagePreviewActive");
-      setFormData({ ...formData, img_url: previewURL });
+      setFormData({ ...formData, img_url: previewURL, is_img_removed: false });
       console.log("selected file:", file);
     }
   };
@@ -50,29 +53,34 @@ export const useAdminFormHandler = () => {
     setSelectedFile(null);
     setPreviewURL(bgImage);
     setActiveImgClass("imagePreview");
-    setFormData({ ...formData, img_url: bgImage });
+    setFormData({
+      ...formData,
+      img_url: bgImage,
+      new_img_id: "",
+      is_img_removed: true,
+    });
   };
 
-  const handleUpload = async (): Promise<string | null> => {
-    if (!selectedFile) return null;
+  const handleUpload = async (): Promise<string> => {
+    if (!selectedFile) return "";
 
     const partialFormData = new FormData();
     partialFormData.append("imageFile", selectedFile);
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/imageUpload/",
+        "http://localhost:8000/api/image/upload/",
         partialFormData
       );
       console.log(response, "Image upload success");
-      Notify("Image upload success", "pSuccess");
+      Notify("Image uploaded successfully", "pSuccess");
       setImageId(response.data._id);
       return response.data._id;
     } catch (err) {
-      console.log(err, "image upload failed");
-      Notify("Image upload failed", "pError");
+      console.log(err, "Unable to upload image");
+      Notify("Unable to upload image", "pError");
       setImageId("");
-      return null;
+      return "";
     }
   };
 
@@ -81,6 +89,7 @@ export const useAdminFormHandler = () => {
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const formatTags = (tagString: string) => {
     return tagString.split(/\s*,\s*/);
   };
@@ -91,37 +100,63 @@ export const useAdminFormHandler = () => {
       github_url: "",
       tags: "",
       img_url: "",
+      old_img_id: "",
+      new_img_id: "",
+      is_img_removed: false,
     });
+    setSelectedFile(null);
     setPreviewURL(bgImage);
-    setImageId("");
-    setFormFlag(false);
     setActiveImgClass("imagePreview");
   };
+
+  const validateFormFields = (isEditBtn: boolean) => {
+    //validate each form field
+    let formDataObj = Object.entries(formData).slice(0, 5);
+    if (isEditBtn) {
+      formDataObj = Object.entries(formData).slice(0, 5);
+    }
+    for (const [key, value] of formDataObj) {
+      if (value == "" || value === null) {
+        Notify(`${key.toUpperCase()} cannot be empty!`, "pWarn");
+        console.log(`${key} cannot be empty!`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditBtn) {
+      if (!validateFormFields(isEditBtn)) {
+        return;
+      }
       console.log("inside edit mode");
       // Notify("Editing Mode");
       let isImageUploaded = false;
       let isImagePresent = selectedFile != null;
-      let uploaded_image_id = null;
+      let uploaded_image_id = "";
+      console.log(`uploaded_image_id: ${uploaded_image_id}`);
+      console.log(`is image present: ${isImagePresent}`);
       if (isImagePresent) {
         uploaded_image_id = await handleUpload();
-        isImageUploaded = uploaded_image_id != null;
+        isImageUploaded = uploaded_image_id != "";
         console.log(
           `${uploaded_image_id}| isImageUploaded-> ${isImageUploaded}`
         );
+        console.log(`is image upload: ${isImageUploaded}`);
         if (isImageUploaded) {
           try {
-            formData.img_url = formData.img_url + ":" + uploaded_image_id;
+            formData.new_img_id = uploaded_image_id;
+            console.log(`form_data with image: ${formData}`);
             const response = await axios.patch(
-              `http://localhost:8000/api/${formId}/`,
+              `http://localhost:8000/api/update_post/${formId}/`,
               formData
             );
             console.log(response.data, "data updated");
             Notify("Image has been updated", "pSuccess");
             setTimeout(() => {
-              // location.reload();
+              location.reload();
             }, 2500);
           } catch (err) {
             console.log(err, "not able to update image");
@@ -131,14 +166,14 @@ export const useAdminFormHandler = () => {
       } else {
         try {
           const response = await axios.patch(
-            `http://localhost:8000/api/${formId}/`,
+            `http://localhost:8000/api/update_post/${formId}/`,
             formData
           );
           console.log("Edit mode", formData);
           console.log(response.data, "data updated");
           Notify("Post is updated", "pSuccess");
           setTimeout(() => {
-            // location.reload();
+            location.reload();
           }, 3000);
         } catch (err) {
           console.log(err);
@@ -146,34 +181,15 @@ export const useAdminFormHandler = () => {
         }
       }
     } else {
-      // if (
-      //   formData.title == "" ||
-      //   formData.desc == "" ||
-      //   formData.github_url == "" ||
-      //   formData.tags == "" ||
-      //   selectedFile === null
-      // ) {
-      //   console.log(formData.desc);
-      //   Notify("Form fields cannot be empty!", "pWarn");
-      //   console.log("Form fields cannot be empty");
-      //   return;
-      // }
-      for (const [key, value] of Object.entries(formData)) {
-        if (value == "" || value === null) {
-          Notify(`${key.toUpperCase()} cannot be empty!`, "pWarn");
-          console.log(`${key} cannot be empty!`);
-          return;
-        }
+      // inserting new post
+      if (!validateFormFields(isEditBtn)) {
+        return;
       }
       console.log("Add mode", formData);
       let uploaded_image_id = await handleUpload();
       console.log("uploaded image id", uploaded_image_id);
       if (!uploaded_image_id) {
-        console.log("image id", img_id);
-        console.log("preview url", previewURL);
-        console.log("selectedFile", selectedFile);
-        console.log("image upload failed");
-        Notify("Image upload failed", "pError");
+        Notify("Cannot upload image", "pError");
         return;
       }
       let data = {
@@ -184,24 +200,23 @@ export const useAdminFormHandler = () => {
         card_img_id: uploaded_image_id,
       };
       console.log("Add mode form data", data);
-      if (uploaded_image_id) {
+      if (uploaded_image_id != "") {
         axios
-          .post("http://localhost:8000/api/", data)
+          .post("http://localhost:8000/api/view_create_post/", data)
           .then((response) => {
             if (response.status === 200) {
               setFormFlag(true);
               resetForm();
-              // popup("Data inserted into database");
               console.log("Data inserted into database");
               Notify("Post created", "pSuccess");
               setTimeout(() => {
-                // location.reload();
+                location.reload();
               }, 2500);
             }
           })
           .catch((err) => {
             console.error(err);
-            console.log("error in inserting into database");
+            console.log("Error in inserting into database");
             Notify("Unable to create post", "pError");
           });
       }

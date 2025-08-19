@@ -1,3 +1,4 @@
+from io import BytesIO
 import json
 import re
 from django.http import Http404, HttpResponse
@@ -10,73 +11,105 @@ from pymongo import MongoClient
 import gridfs
 from bson import ObjectId
 from server.db_con_util.db_conn_class import DBConnect
-from server.Logger.logger_util import Logger
+# from server.Logger.logger_util import logging
 from dotenv import load_dotenv
 load_dotenv()
 
+DEFAULT_IMG_URL = f'{os.getenv("HOST_NAME_REACT")}/src/assets/image_placeholder.jpg'
+
 class ReactView(APIView):
-    # serializer_class = ReactSerializer
-    # def get(self, request):
-    #     output = [{'card_title': output.card_title,"card_desc": output.card_desc, "card_git_link": output.card_git_link, "card_tags":output.card_tags} for output in React.objects.all()]
-    #     return Response(output)
-    
     db_obj = DBConnect()
     collection = db_obj.get_collection()
     gfs = db_obj.get_grid_fs()
+    grid_bucket = db_obj.get_grid_bucket()
     
     def get(self, request):
-        documents = self.collection.find()
+        all_documents = self.collection.find()
         output = []
-        for doc in documents:
+        for doc in all_documents:
             img_id = doc.get("card_img_id", "")
-            img_url = f"http://localhost:8000/image/{img_id}/" if img_id else ""
-            if img_url == "":
-                img_url = "http://localhost:5173/src/assets/image_placeholder.jpg"
-            # if doc.get("img_url","").endswith("image_placeholder.jpg"):
-            #     img_url = doc.get("img_url")
+            img_url = f'{os.getenv("HOST_NAME")}/api/image/fetch/{img_id}/' if img_id else DEFAULT_IMG_URL
             output.append({
                 "card_id": str(doc.get("_id", "")),
                 "card_title": doc.get("card_title", ""),
                 "card_desc": doc.get("card_desc", ""),
                 "card_git_link": doc.get("card_git_link", ""),
                 "card_tags": doc.get("card_tags", []),
-                "card_img_id": img_url
+                "card_img_id": doc.get("card_img_id",""),
+                "card_img_url": img_url
             })
-        # for obj in output:
-        #     print(f"get: {obj}\n\n")
         return Response(output)
         
     def post(self, request):
-        print(f"from copy: {request.data}")
-        serializer = ReactSerializer(data=request.data)
-        if serializer.is_valid(raise_exception = True):
-            serializer.save()
-            return Response(serializer.data)
+        self.db_obj.start_session()
+        response = None
+        try:
+            self.db_obj.start_transaction()
+            print(f"from copy: {request.data}")
+            isCopyMode = request.data.get("isCopyMode",False)
+            img_id = request.data.get("card_img_id","")
+            new_img_id = None
+            if isCopyMode and img_id!="":
+                try:
+                    existing_img_file = self.gfs.get(ObjectId(img_id))
+                    img_bin_data = existing_img_file.read()
+                    img_copy_count = 1
+                    try:
+                        img_copy_count = int(existing_img_file.filename.split("_")[-1])
+                    except Exception as e:
+                        pass
+                    new_image_name = f"{existing_img_file.filename}_{img_copy_count}"
+                    new_img_id = self.gfs.put(
+                        img_bin_data,
+                        filename=new_image_name,
+                        contentType=existing_img_file.content_type,
+                        metadata=existing_img_file.metadata)
+                    request.data["card_img_id"] = str(new_img_id)
+                    del request.data["isCopyMode"]
+                    print(request.data)
+                except Exception as ex:
+                    self.db_obj.rollback_transaction()
+                    response = Response({"message": "Cannot create copy"})
+                    print(ex)
+            serializer = ReactSerializer(data=request.data)
+            if serializer.is_valid(raise_exception = True):
+                serializer.save()
+                response = Response(serializer.data)
+                self.db_obj.commit_transaction()
+        except Exception as exp:
+            print(exp)
+            if new_img_id:
+                try:
+                    self.gfs.delete(new_img_id)
+                    print(f"Rolled back GridFS file: {new_img_id}")
+                except Exception as cleanup_err:
+                    print(f"WARNING: failed to cleanup GridFS file {new_img_id}: {cleanup_err}")
+            response = Response({"message": "Transaction failed"}, status=500)
+        finally:
+            self.db_obj.end_session()
+        return response
         
     def delete(self,request):
         try:
-            card_id = request.data["card_id"]
-            img_id = None
-            if not img_id:
-                try:
-                    img_id = request.data["img_id"].split("/")[-2]
-                    print(img_id)
-                    isImageDeleted = self.gfs.delete(ObjectId(img_id))
-                    if not isImageDeleted:
-                        existing_record = self.collection.delete_one({"_id": ObjectId(card_id)})
-                except Exception as exp:
-                    existing_record = self.collection.delete_one({"_id": ObjectId(card_id)})
-                
+            post_id = request.data.get("card_id",None)
+            img_id = request.data.get("img_id",None)
+            existing_record = None
+            print(request.data)
+            if img_id:
+                isImageDeleted = self.gfs.delete(ObjectId(img_id))
+                print(f"{img_id, isImageDeleted}")
+                if isImageDeleted is None:
+                    existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
+                    print(f"{existing_record}")
             else:
-                existing_record = self.collection.delete_one({"_id": ObjectId(card_id)})
+                existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
             return Response({"message": f"data deleted from server-> {existing_record!=None}"})
         except Exception as ex:
-            print(ex)
             return Response({"message": "error occurred"})
             
-    def patch(self,request,form_doc_id):
+    def patch(self,request,form_doc_id=None):
         print(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
-        success_flag = False
+        response_obj = {"message":"","status":200}
         try:
             existing_record = self.collection.find_one({"_id": ObjectId(form_doc_id)})
             if existing_record:                
@@ -85,99 +118,70 @@ class ReactView(APIView):
                 update_fields["card_title"] = request.data.get("title","")
                 update_fields["card_desc"] = request.data.get("desc","")
                 update_fields["card_git_link"] = request.data.get("github_url","")
-                update_fields["card_tags"] = request.data.get("tags","")
                 tags = request.data.get("tags", "")
                 if isinstance(tags, str) and tags.strip():
                     update_fields["card_tags"] = re.split(r'\s*,\s*', tags)
                 elif isinstance(tags, list):
-                    update_fields["card_tags"] = [tag for tag in tags if tag.strip()] or ["No category"]
+                    update_fields["card_tags"] = [tag for tag in tags if tag.strip()] or ["untagged"]
                 else:
                     update_fields["card_tags"] = ["untagged"]
                  
-                form_data_img_url = request.data.get("img_url","")
-                if form_data_img_url.endswith("image_placeholder.jpg"):
-                    update_fields["img_url"] = "http://localhost:5173/src/assets/image_placeholder.jpg"
+                new_img_id = request.data.get("new_img_id","")
+                old_img_id = request.data.get("old_img_id","")
+                isImageRemoved = request.data.get("is_img_removed",False)
+                existing_card_img_id = existing_record.get("card_img_id") 
+                
+                if  new_img_id!="": #if new img is present
+                    if existing_card_img_id!="": # delete existing image
+                        isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
+                        if isImageDeleted is None:
+                            update_fields["card_img_id"] = new_img_id                
+                    else: #current image is absent, inserting new image
+                        update_fields["card_img_id"] = new_img_id                
+                elif isImageRemoved:
+                    if existing_card_img_id!="": # delete existing image
+                        isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
+                        if isImageDeleted is None:
+                            update_fields["card_img_id"] = ""                  
+                elif old_img_id == "": #if image is removed
+                    update_fields["card_img_id"] = "" 
                     
-                print(f"modified fields>> {update_fields}")  
-                # case : not image change 0
-                # case: new image uploaded 1
-                # case: image removed 2
-                imageMode = -1
-                if not str(request.data["img_url"]).endswith("image_placeholder.jpg"):
-                    old_url_arr = request.data["img_url"].split(":")
-                    old_img_id = old_url_arr[2].split("/")[-2]
-                    default_img_id = old_url_arr[2].split("/")[-1]
-                    isImageDeleted = False
-                    new_img_id = None
-                    if len(old_url_arr)==3:
-                        imageMode = 0
-                    elif len(old_url_arr)==4:
-                        imageMode = 1
-                        new_img_id = old_url_arr[-1]
-                    else:
-                        imageMode = 2
-                    try:
-                        print(f"old_url_arr: {old_url_arr}")
-                        print(f"Old img id, {old_img_id}")
-                        if imageMode in [1,2]:
-                            if imageMode==1 and (not new_img_id):
-                                update_fields["card_img_id"] = new_img_id
-                            elif imageMode==2:
-                                update_fields["card_img_id"] = ""
-                            isImageDeleted = self.gfs.delete(ObjectId(old_img_id))
-                            print(f"is image deleted: {isImageDeleted}")
-                            
-                    except Exception as ex:
-                        print(f"Exception: {ex}\n")
-                    if isImageDeleted:
-                        print(f"\nmodified fields image>> {update_fields}")                   
-                        result = self.collection.update_one(
+                print(f"modified fields>> {update_fields}")
+                result = self.collection.update_one(
                             {"_id": ObjectId(form_doc_id)},
                             {"$set": update_fields}
                         )
-                        if result.modified_count > 0:
-                            print("Record updated successfully")
-                            return Response({"message": "Record updated successfully along with image"})
-                        else:
-                            print("No changes made to the record")
-                            return Response({"message": "No changes made to the record along with image"})
-                else:        
-                    result = self.collection.update_one(
-                        {"_id": ObjectId(form_doc_id)},
-                        {"$set": update_fields}
-                    )
-                    if result.modified_count > 0:
-                        print("Record updated successfully")
-                        return Response({"message": "Record updated successfully"})
-                    else:
-                        print("No changes made to the record")
-                        return Response({"message": "No changes made to the record"})
-                    
-            # if success_flag:
-            #     return Response({"message": "all operation done successfully"}, status=200)
-            return Response({"error": "Record not found"}, status=404)
+                if result.modified_count > 0:
+                    print("Record updated successfully")
+                    response_obj["message"] = "Record updated successfully"
+                    response_obj["status"] = 200
+                else:
+                    print("No changes made to the record")
+                    response_obj["message"] = "No changes made to the record"
+                    response_obj["status"] = 200
+            else:
+                response_obj["message"] = "Record"
+                response_obj["status"] = 404
         except Exception as e:
             print(e)
-            return Response({"error": str(e)}, status=500)
+            response_obj["message"] = "Internal server error"
+            response_obj["status"] = 500
+        return Response(response_obj,status=response_obj.get("status"))
       
 class RealTimeSearchView(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection()
     gfs = db_obj.get_grid_fs()
+    
     def get(self,request):            
         query = request.GET.get('q', '')
         if not query:
-            return Response([])        
-        # regex = re.compile(f".*{re.escape(query)}.*", re.IGNORECASE)
-        # regex = {
-        # "$text": {
-        #             "$search": query
-        #         }}
+            return Response([])
         results = list(self.collection.find({ "$text": { "$search": query } }).limit(10))  
         print(results)
         for item in results:
             item["_id"] = str(item["_id"])           
-            item["card_img_id"] = f'http://localhost:8000/image/{item.get("card_img_id","")}/'
+            item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
         return Response(results)
     
 class ImageUploadView(APIView):
@@ -192,12 +196,11 @@ class ImageUploadView(APIView):
             response['Content-Disposition'] = f'inline; filename="{file.filename}"'
             return response
         except:
-            flag = False
-            # raise Http404("Image not found")
             return HttpResponse("Image not found", status=404)
     
     def post(self,request):
         image_file = request.FILES.get("imageFile")
+        print(image_file)
         if not image_file:
             return Response({"error": "Image file is required"}, status=400)        
         file_id = self.gfs.put(image_file, filename=image_file.name, content_type=image_file.content_type)

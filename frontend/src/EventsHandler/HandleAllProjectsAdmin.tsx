@@ -17,6 +17,7 @@ export const HandleAllProjectsAdmin = () => {
     formReactState: React.Dispatch<React.SetStateAction<any>>,
     formDataValue: object,
     imageReactState: React.Dispatch<React.SetStateAction<string>>,
+    imageUrl: string,
     imageId: string,
     formId: string,
     isEditBtnBool: boolean,
@@ -26,8 +27,8 @@ export const HandleAllProjectsAdmin = () => {
     setFormIdReactState: React.Dispatch<React.SetStateAction<string>>,
     adminFormVisibleReactState: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    formReactState(formDataValue);
-    imageReactState(imageId ? imageId : bgImage);
+    formReactState({ ...formDataValue, old_img_id: imageId });
+    imageReactState(imageUrl ? imageUrl : bgImage);
     isEditReactState(true);
     selectedFileReactState(selectedFileValue);
     setFormIdReactState(formId);
@@ -41,12 +42,15 @@ export const HandleAllProjectsAdmin = () => {
 
   const handleDelete = async (img_id: string, card_id: string) => {
     try {
-      const response = await axios.delete(`http://localhost:8000/api/delete/`, {
-        data: {
-          img_id,
-          card_id,
-        },
-      });
+      const response = await axios.delete(
+        `http://localhost:8000/api/delete_post/`,
+        {
+          data: {
+            img_id,
+            card_id,
+          },
+        }
+      );
       console.log(response.data, "data deleted");
     } catch (err) {
       console.log(err);
@@ -65,10 +69,11 @@ export const HandleAllProjectsAdmin = () => {
     setFormIdReactState: React.Dispatch<React.SetStateAction<string>>,
     adminFormVisibleReactState: React.Dispatch<React.SetStateAction<string>>
   ) => {
+    Object.assign(formDataValue, { isCopyMode: true });
     console.log(formDataValue);
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/",
+        "http://localhost:8000/api/view_create_post/",
         formDataValue
       );
       console.log(response, "Copy created");

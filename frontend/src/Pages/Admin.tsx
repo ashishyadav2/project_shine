@@ -72,7 +72,9 @@ const Admin = () => {
     setTagInputValue(e.target.value.trim());
   };
   const removeTag = (index: any) => {
-    setTagsArr(tagsArr.filter((_, i) => i !== index));
+    const updatedTags = tagsArr.filter((_, i) => i !== index);
+    setTagsArr(updatedTags);
+    setFormData({ ...formData, tags: updatedTags.join(",") });
   };
   useEffect(() => {
     if (isEditBtn && formData.tags) {
