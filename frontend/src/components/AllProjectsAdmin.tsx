@@ -8,6 +8,7 @@ import InputField from "./InputField";
 import ActionButton from "./ActionButton";
 import {
   faArrowRight,
+  faL,
   faMagnifyingGlass,
   faPlus,
   faXmark,
@@ -103,7 +104,9 @@ const AllProjectsAdmin = ({
   };
 
   const fetchResults = async (searchText: string) => {
-    if (!searchText) return setResults([]);
+    if (!searchText) {
+      return setResults([]);
+    }
     try {
       const res = await axios.get(
         `http://localhost:8000/api/search/?q=${searchText}/`
@@ -156,7 +159,15 @@ const AllProjectsAdmin = ({
             expanded ? "scale-100 opacity-100" : "scale-0 opacity-0"
           }`}
         >
-          <FontAwesomeIcon icon={faMagnifyingGlass} flip={"horizontal"} />
+          <FontAwesomeIcon
+            onClick={() => {
+              if (expanded) {
+                setExpanded(false);
+              }
+            }}
+            icon={faMagnifyingGlass}
+            flip={"horizontal"}
+          />
           <InputField
             type={"text"}
             placeholder={"Search"}
@@ -164,19 +175,22 @@ const AllProjectsAdmin = ({
             inputFunc={(e) => {
               if (e.target.value.length == 0) {
                 setResults([]);
+                setExpanded(false);
               }
               setQuery(e.target.value);
             }}
           />
-          <ActionButton
-            id={"searchBarCloseBtn"}
-            btnText={<FontAwesomeIcon icon={faXmark} />}
-            btnType={"active"}
-            btnFun={() => {
-              setQuery("");
-              setExpanded(false);
-            }}
-          />
+          {query.length >= 1 && (
+            <ActionButton
+              id={"searchBarCloseBtn"}
+              btnText={<FontAwesomeIcon icon={faXmark} />}
+              btnType={"active"}
+              btnFun={() => {
+                setQuery("");
+                // setExpanded(false);
+              }}
+            />
+          )}
           <ActionButton
             btnText={<FontAwesomeIcon icon={faArrowRight} />}
             btnType={"active"}
@@ -251,12 +265,14 @@ const AllProjectsAdmin = ({
             />
           )
         )}
-        <ActionButton
-          btnText={<FontAwesomeIcon icon={faPlus} />}
-          btnType={"active"}
-          btnHType={"button"}
-          btnFun={resetFormForAddProject}
-        />
+        <span className="addBtn">
+          <ActionButton
+            btnText={<FontAwesomeIcon icon={faPlus} />}
+            btnType={"active"}
+            btnHType={"button"}
+            btnFun={resetFormForAddProject}
+          />
+        </span>
       </div>
       {showDeletePopUP && (
         <div className="confirmDeleteBackdrop">

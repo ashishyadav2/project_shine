@@ -23,20 +23,21 @@ const Projects = () => {
       <Header isActive="projects" />
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
-      <div className="cardPageContainerBtm">
-        {projectData.map((item, index) => (
-          <Card
-            key={index}
-            cardTags={item.card_tags}
-            cardTitle={item.card_title}
-            cardDescription={item.card_desc}
-            cardBgImgUrl={
-              item.card_img_id
-                ? item.card_img_id
-                : "https://static.addtoany.com/images/dracaena-cinnabari.jpg"
-            }
-          />
-        ))}
+      <div className="cardContainerProject">
+        <div className="cardPageContainerTop">
+          <p>Projects</p>
+        </div>
+        <div className="cardPageContainerBtm">
+          {projectData.map((item, index) => (
+            <Card
+              key={index}
+              cardTags={item.card_tags}
+              cardTitle={item.card_title}
+              cardDescription={item.card_desc}
+              cardBgImgUrl={item.card_img_url ? item.card_img_url : ""}
+            />
+          ))}
+        </div>
       </div>
     </>
   );

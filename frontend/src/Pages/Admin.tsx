@@ -7,7 +7,13 @@ import Popup from "../Utilities/Popup";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
 import popup from "../Utilities/Popup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faClose,
+  faFloppyDisk,
+  faFolderOpen,
+  faTrashCan,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 const Admin = () => {
   const [isAdminFormVisible, setIsAdminFormVisible] = useState("adminForm");
 
@@ -91,6 +97,7 @@ const Admin = () => {
   return (
     <>
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
+
       <div className="adminFormContainer">
         <AllProjectsAdmin
           formReactState={setFormData}
@@ -104,11 +111,24 @@ const Admin = () => {
           previewImgValue={previewURL}
           adminFormVisibleReactState={setIsAdminFormVisible}
         />
+        {/* <div
+          className={
+            isAdminFormVisible != "adminForm" ? "adminFormBackdrop" : ""
+          }
+        > */}
         <form
           method="post"
           className={isAdminFormVisible}
           onSubmit={handleSubmit}
         >
+          <ActionButton
+            btnText={<FontAwesomeIcon icon={faClose} />}
+            btnHType="button"
+            btnType="inactive"
+            btnFun={() => {
+              setIsAdminFormVisible("adminForm");
+            }}
+          />
           <div className="adminFormHeader">
             {isEditBtn ? "Edit Project" : "Add Project"}
           </div>
@@ -197,32 +217,40 @@ const Admin = () => {
                     style={{ display: "none" }}
                   />
                   <label htmlFor="imageInput" className="activeActionBtn">
-                    Choose Image
+                    {<FontAwesomeIcon icon={faFolderOpen} />}
+                    <span className="ml-1">Browse</span>
                   </label>
-                  <ActionButton
-                    btnText={"Remove"}
-                    btnType={"inactive"}
-                    btnFun={handleRemove}
-                    btnHType={"button"}
-                  />
+                  <span className={selectedFile || isEditBtn ? "" : "hidden"}>
+                    <ActionButton
+                      btnText={<FontAwesomeIcon icon={faTrashCan} />}
+                      btnType={"inactive"}
+                      btnFun={handleRemove}
+                      btnHType={"button"}
+                    />
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           {isEditBtn ? (
-            <ActionButton btnText="Update" btnHType="submit" btnType="active" />
+            <ActionButton
+              btnText={
+                <span>{<FontAwesomeIcon icon={faFloppyDisk} />} Update</span>
+              }
+              btnHType="submit"
+              btnType="active"
+            />
           ) : (
-            <ActionButton btnText="Save" btnHType="submit" btnType="active" />
+            <ActionButton
+              btnText={
+                <span>{<FontAwesomeIcon icon={faFloppyDisk} />} Save</span>
+              }
+              btnHType="submit"
+              btnType="active"
+            />
           )}
-          <ActionButton
-            btnText="Close"
-            btnHType="button"
-            btnType="inactive"
-            btnFun={() => {
-              setIsAdminFormVisible("adminForm");
-            }}
-          />
+
           {/* <InputField
           type="hidden"
           name="img_id"
@@ -231,6 +259,7 @@ const Admin = () => {
         /> */}
           <input type="hidden" name="img_id" value={img_id} />
         </form>
+        {/* </div> */}
       </div>
     </>
   );

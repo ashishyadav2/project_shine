@@ -23,8 +23,8 @@ const Homes = () => {
   ];
   return (
     <>
+      <Header isActive="home" />
       <div id="overlay">
-        <Header isActive="home" />
         <div className="homeMiddleDiv">
           <p className="heading">
             Transforming challenges into solutions through technology
@@ -35,7 +35,7 @@ const Homes = () => {
           <TagContainer tagTextArr={array} />
         </div>
       </div>
-      <div className="cardPageContainer">
+      {/* <div className="cardPageContainer">
         <div className="cardPageContainerTop">
           <p>Projects</p>
         </div>
@@ -69,7 +69,7 @@ const Homes = () => {
             }
           />
         </div>
-      </div>
+      </div> */}
     </>
   );
 };

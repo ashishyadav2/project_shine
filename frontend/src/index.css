@@ -27,6 +27,7 @@
   --black: #000000;
   --gray: #333333;
   --light-gray: #eeeeee;
+  --gray-md-s: #dddddd;
   --gray-md: #777777;
   --white: #ffffff;
 }
@@ -43,8 +44,8 @@
   border: var(--outline-border-width) solid var(--accent-color);
 }
 .activeActionBtn:hover {
-  background-color: var(--accent-color-hover);
-  border: var(--outline-border-width) solid var(--accent-color-hover);
+  background-color: var(--accent-color);
+  box-shadow: var(--accent-color) 0px 10px 15px -5px;
 }
 .inactiveActionBtn {
   @apply bg-white hover:text-white text-black py-1 px-5 rounded-full duration-300 uppercase;
@@ -67,13 +68,14 @@
   border: var(--outline-border-width) solid #fff;
 }
 .inactiveNavLink:hover {
-  border: var(--outline-border-width) solid var(--accent-color-light);
+  border: var(--outline-border-width) solid var(--accent-color);
   background-color: var(--accent-color-light);
   color: var(--accent-color-dark);
 }
 .topNavbar {
-  @apply w-max flex bg-white justify-center items-center p-1 rounded-full;
-  box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
+  @apply flex bg-white justify-center items-center p-1 rounded-full font-ui;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 .topNavbar a {
   @apply ml-1;
@@ -81,10 +83,52 @@
 .topNavbar a:first-child {
   @apply ml-0;
 }
+.hamBurgerMenu {
+  @apply text-white py-2 px-4 rounded-full cursor-pointer;
+  background-color: var(--accent-color);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+.closeHamBurgerMenu {
+  @apply text-white py-2 px-4 rounded-full cursor-pointer;
+  background-color: var(--error);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+.phoneNavbar {
+  @apply w-full h-screen absolute left-0 top-0 mt-40 flex justify-center duration-300;
+  transform: translate(0, 0);
+}
+.phoneNavbarHide {
+  @apply w-full h-screen absolute left-0 top-0 mt-40 flex justify-center opacity-0 duration-300;
+  transform: translate(0, -120%);
+}
+.phoneNavbarHide .topNavbar,
+.phoneNavbar .topNavbar {
+  @apply h-2/5 rounded-none flex-col px-3 rounded-lg;
+  width: 97%;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+.phoneNavbarHide .activeActionBtn,
+.phoneNavbar .activeActionBtn {
+  @apply my-1.5 w-full py-2;
+}
+.phoneNavbarHide .inactiveNavLink,
+.phoneNavbar .inactiveNavLink {
+  @apply my-1.5 w-full py-2;
+  border: none;
+  background-color: var(--gray-md-s);
+}
+.phoneNavbar .inactiveNavLink:hover {
+  color: var(--accent-color-dark);
+}
+
 .websiteName,
 .searchBtn {
-  @apply rounded-full bg-white py-2 px-5 font-bold cursor-pointer duration-300;
-  box-shadow: 0 0 15px -1px rgba(0, 0, 0, 0.25);
+  @apply rounded-full bg-white py-2.5 px-5 font-bold cursor-pointer duration-300;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 /* .searchBtn {
   @apply duration-300;
@@ -94,21 +138,28 @@
   width: 200px;
 }
 .header {
-  @apply fixed flex justify-between items-center px-10 fixed z-50 w-screen py-5;
+  @apply fixed flex justify-between items-center px-5 md:px-10 fixed z-50 w-screen py-5 bg-white md:bg-transparent;
 }
 #root {
-  /* background: url("./assets/bg.png");
+  background: url("./assets/bg.png");
   background-repeat: no-repeat;
-  background-size: cover; */
-  /* @apply h-full; */
+  background-size: cover;
+  @apply w-full h-full;
   /* background-color: var(--bg-white); */
 }
 body {
-  @apply w-full h-full;
   background-color: var(--bg-white);
 }
 #overlay {
-  @apply flex flex-col justify-between bg-black bg-opacity-20 w-full h-full;
+  @apply flex flex-col justify-end bg-black bg-opacity-80 w-full h-screen py-12;
+  /* background: #becdf7;
+  background: radial-gradient(
+    circle,
+    rgba(190, 205, 247, 1) 0%,
+    rgba(187, 222, 251, 1) 39%,
+    rgba(255, 255, 255, 1) 100%,
+    rgba(227, 242, 253, 1) 77%
+  ); */
 }
 .centerAbsolute {
   /* top: 50%;
@@ -146,20 +197,24 @@ body {
   z-index: 10;
 }
 .categoryTag {
-  @apply bg-transparent text-white py-1.5 px-5 rounded-full duration-300  backdrop-blur bg-white bg-opacity-20;
+  @apply bg-transparent text-white py-1.5 px-5 rounded-full duration-300  backdrop-blur bg-white bg-opacity-20 font-ui;
+  border: var(--outline-border-width) solid #fff;
+}
+.categoryTag:hover {
+  @apply text-black bg-opacity-100;
   border: var(--outline-border-width) solid #fff;
 }
 .homeBottomTags {
-  @apply flex flex-wrap w-3/12 pl-10;
+  @apply flex flex-wrap md:w-7/12 md:pl-10 pl-3 w-full lg:w-6/12;
 }
 .heading {
-  @apply text-8xl text-white w-9/12 font-serif;
+  @apply text-5xl md:text-7xl lg:text-8xl text-white w-full md:w-9/12 font-serif;
 }
 .homeBottomTags a {
   @apply m-1;
 }
 .homeMiddleDiv {
-  @apply flex flex-col justify-center w-full px-10;
+  @apply flex flex-col justify-center w-full md:px-10 mb-20 md:mb-40 px-5;
 }
 .textUnderline {
   @apply h-3 w-6/12;
@@ -167,19 +222,33 @@ body {
 }
 .cardPageContainer,
 .cardPageContainerBtm {
-  @apply flex flex-wrap w-full bg-gray-900 justify-center py-10;
+  @apply flex flex-wrap w-full bg-gray-900 justify-center pt-10 bg-transparent;
+}
+.cardPageContainerTop {
+  @apply flex flex-wrap w-full bg-gray-900 justify-center pt-10 bg-transparent;
 }
 .cardPageContainerTop p {
-  @apply py-2 text-5xl uppercase text-white text-justify font-serif;
+  @apply py-2 text-5xl uppercase text-black text-justify font-serif;
 }
 .cardTagsContainer {
-  @apply flex justify-end flex-wrap z-10 p-1 m-5 rounded-full;
+  @apply flex justify-end flex-wrap z-10 p-1 sm:m-5 m-3 rounded-full;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
   /* background-image: linear-gradient(to top, transparent, black); */
 }
+.cardContainerProject {
+  @apply w-full flex flex-col flex-wrap pt-20 bg-gray-900;
+  background: #becdf7;
+  background: radial-gradient(
+    circle,
+    rgba(190, 205, 247, 1) 0%,
+    rgba(187, 222, 251, 1) 39%,
+    rgba(255, 255, 255, 1) 100%,
+    rgba(227, 242, 253, 1) 77%
+  );
+}
 .cardTitle {
-  @apply text-2xl text-justify font-serif;
+  @apply text-2xl text-justify font-serif capitalize;
 }
 .cardDescription,
 .cardTitle,
@@ -187,11 +256,11 @@ body {
   @apply break-words;
 }
 .cardDescription {
-  @apply py-5;
-  min-height: 50%;
+  @apply sm:py-5 py-2;
+  /* min-height: 50%; */
 }
 .cardPageContainerBtm .cardContainer {
-  @apply flex flex-col w-3/12 rounded-lg px-5 py-7 m-5 items-stretch duration-300;
+  @apply flex flex-col w-full sm:w-1/2 md:w-1/2 lg:w-4/12 xl:w-3/12 rounded-lg px-0 py-0 m-3 items-stretch duration-300;
   /* border: var(--outline-border-width) solid var(--gray-md); */
   /* background-repeat: no-repeat;
   background-size: cover; */
@@ -207,7 +276,7 @@ body {
   box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 .cardContent {
-  @apply flex flex-col justify-between h-full px-5 py-7;
+  @apply flex flex-col justify-between h-full sm:px-5 sm:py-7 px-3 py-5;
 }
 .cardContainer .categoryTag {
   @apply flex justify-center items-center text-black py-0.5 px-3 mx-1 rounded-full duration-300 bg-white my-1 lowercase outline-none;
@@ -256,24 +325,51 @@ input:focus {
   border-color: var(--accent-color);
 }
 /* admin page */
+.adminFormBackdrop {
+  @apply w-full fixed left-0 top-0 flex justify-center py-20 z-10 backdrop-blur;
+  overflow-y: scroll;
+  background-color: rgba(0, 0, 0, 0.75);
+  pointer-events: none; /* Allow page scrolling and interaction through backdrop */
+}
 .adminFormContainer {
   @apply w-full h-full flex justify-center pt-2 md:pt-10 lg:pt-20 items-start;
+  background: #becdf7;
+  background: radial-gradient(
+    circle,
+    rgba(190, 205, 247, 1) 0%,
+    rgba(187, 222, 251, 1) 39%,
+    rgba(255, 255, 255, 1) 100%,
+    rgba(227, 242, 253, 1) 77%
+  );
 }
-.adminFormContainer button {
-  @apply mt-1;
+.adminFormContainer .activeActionBtn {
+  @apply px-10;
 }
-.adminFormShow .inactiveActionBtn {
-  @apply mt-1;
+.adminFormContainer .activeActionBtn:hover {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: var(--accent-color) 0px 10px 15px -5px;
+}
+.adminFormContainer .addBtn .activeActionBtn:hover {
+  background: var(--accent-color-dark);
+  border-color: var(--accent-color-dark);
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
+    rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
+}
+.adminFormShow .inactiveActionBtn,
+.adminForm .inactiveActionBtn {
+  @apply mt-1 py-2.5 px-4 text-white duration-300;
+  background-color: var(--error);
 }
 .adminFormShow .inactiveActionBtn:hover {
-  background-color: var(--error);
-  border-color: var(--error);
+  @apply mt-1 py-2.5 px-4 text-white duration-300;
+  box-shadow: var(--error) 0px 10px 15px -5px;
 }
 .adminForm {
-  @apply bg-white w-5/6 px-10 py-10 flex flex-col items-center fixed;
+  @apply bg-white w-5/6 px-10 py-10 flex flex-col items-center absolute duration-300 opacity-0;
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
   border-radius: var(--border-radius-md);
-  transform: translate(0, -150%);
+  transform: translate(0, -100%);
   z-index: 5;
 }
 .adminForm textarea {
@@ -290,14 +386,14 @@ input:focus {
   border-color: var(--accent-color);
 }
 .adminFormShow {
-  @apply bg-white w-full px-5 py-7 flex flex-col items-center absolute;
-  @apply bg-white sm:w-5/6 sm:px-7 sm:py-7 flex flex-col items-center absolute;
-  @apply bg-white md:w-5/6 md:px-10 md:py-10 flex flex-col items-center absolute;
-  @apply bg-white lg:w-5/6 lg:px-12 sm:py-10 flex flex-col items-center absolute;
+  @apply duration-300 opacity-100;
+  @apply bg-white w-full px-5 py-7 flex flex-col items-end z-20 fixed;
+  @apply sm:w-5/6 sm:px-7 sm:py-7 absolute;
+  @apply md:w-5/6 md:px-10 md:py-10 absolute;
+  @apply lg:w-5/6 lg:px-12 lg:py-10 absolute;
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
   border-radius: var(--border-radius-md);
-  z-index: 15;
-  transform: translate(0, 0);
+  /* overflow-y: scroll; */
 }
 .adminLRContainer {
   @apply w-full lg:flex lg:flex-row md:flex-col md:flex-col-reverse justify-between py-10;
@@ -311,7 +407,7 @@ input:focus {
   /* width: 40%; */
 }
 .adminFormHeader {
-  @apply font-body flex w-full pt-7 justify-start items-center;
+  @apply font-body flex w-full  justify-start items-center;
   font-size: var(--font-lg);
 }
 /* # Image Upload */
@@ -327,18 +423,22 @@ input:focus {
   display: none;
 }
 .imageUploadContainer .activeActionBtn {
-  @apply text-white py-1.5 px-5 rounded-full duration-300 capitalize;
+  @apply text-white py-2 px-3 rounded-full duration-300 capitalize border-none;
   cursor: pointer;
 }
-.imageUploadContainer .inactiveActionBtn {
-  @apply text-white py-1 px-5 rounded-full duration-300 capitalize ml-3;
+.imageUploadContainer .activeActionBtn:hover {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: var(--accent-color) 0px 10px 15px -5px;
+}
+.imageUploadContainer span .inactiveActionBtn {
+  @apply text-white py-1 px-3 rounded-full duration-300 capitalize ml-2;
   background-color: var(--error);
   border: var(--outline-border-width) solid var(--error);
 }
-.imageUploadContainer .inactiveActionBtn:hover {
-  @apply text-white py-1 px-5 rounded-full duration-300 capitalize;
-  border: var(--outline-border-width) solid var(--error-dark);
-  background-color: var(--error-dark);
+.imageUploadContainer span .inactiveActionBtn:hover {
+  @apply text-white py-1 px-3 rounded-full duration-300 capitalize ml-2;
+  box-shadow: var(--error) 0px 10px 15px -5px;
 }
 /* admin page all project section */
 .cardPageContainerBtmAdmin {
@@ -370,7 +470,7 @@ input:focus {
 }
 /* admin page search region */
 .searchRegionAdmin {
-  @apply fixed lg:w-2/6 rounded-full flex justify-center items-center md:w-3/5 w-full;
+  @apply fixed lg:w-3/6 xl:w-2/6 rounded-full flex justify-center items-center md:w-3/5 w-full;
   z-index: 6;
 }
 .searchBarBox {
@@ -411,7 +511,7 @@ input:focus {
 }
 
 .cardPageContainerBtmAdmin .activeActionBtn {
-  @apply fixed md:bottom-20 md:right-20 px-5 py-3.5 z-10 bottom-10 right-10;
+  @apply fixed md:bottom-20 md:right-20 px-5 py-3.5 z-10 bottom-5 right-5;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
     rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
 }
@@ -468,7 +568,7 @@ input:focus {
   background-color: rgba(0, 0, 0, 0.75);
 }
 .confirmDeleteContainer {
-  @apply bg-white px-3 py-5 grid w-5/6 sm:w-4/6 md:w-3/6 lg:w-2/6 xl:w-1/6;
+  @apply bg-white px-3 py-5 grid w-5/6 sm:w-4/6 md:w-3/6 lg:w-3/6 xl:w-2/6;
   border-radius: var(--border-radius-md);
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
