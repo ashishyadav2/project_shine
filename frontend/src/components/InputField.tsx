@@ -9,6 +9,8 @@ interface InputFieldProps {
   inputFunc?: ChangeEventHandler<HTMLInputElement>;
   value?: string | string[];
   accept?: string;
+  min?: string;
+  max?: string;
 }
 const InputField = ({
   type = "text",
@@ -20,6 +22,8 @@ const InputField = ({
   inputFunc,
   value,
   accept,
+  min,
+  max,
 }: InputFieldProps) => {
   return (
     <div className="inputField">
@@ -34,6 +38,8 @@ const InputField = ({
         accept={accept}
         id={name}
         title={fieldName}
+        min={min}
+        max={max}
       ></input>
     </div>
   );

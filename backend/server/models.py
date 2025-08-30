@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, URLField, ListField
+from mongoengine import Document, StringField, URLField, ListField, DateTimeField
 import os
 
 class React(Document):
@@ -7,6 +7,7 @@ class React(Document):
     card_git_link = URLField(required=True, max_length=512)
     card_tags = ListField(StringField()) 
     card_img_id = StringField(max_length=256, null=True) 
+    card_from_date = DateTimeField(auto_now=True)
 
     meta = {
         'collection': os.getenv('DB_TABLE', 'react')  

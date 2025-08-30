@@ -14,6 +14,7 @@ interface CardProps {
   cardDescription: string;
   cardBgImgUrl?: string;
   cardGitLink?: string;
+  fromDate?: string;
   isEditing?: boolean;
   controller?: () => void;
   deleteController?: () => void;
@@ -25,6 +26,7 @@ const Card = ({
   cardDescription,
   cardBgImgUrl = "",
   cardGitLink = "#",
+  fromDate = "",
   isEditing = false,
   controller,
   deleteController,
@@ -86,6 +88,11 @@ const Card = ({
             </>
           )}
         </div>
+      </div>
+
+      <div className="cardDateDiv font-ui">
+        <span className="from">{fromDate}</span>
+        {/* <span className="to">Today</span> */}
       </div>
     </div>
   );

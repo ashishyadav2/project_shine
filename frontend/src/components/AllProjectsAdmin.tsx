@@ -18,6 +18,8 @@ import axios from "axios";
 import bgImage from "../assets/image_placeholder.jpg";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
 import Popup from "../Utilities/Popup";
+import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
+import { utils } from "../jsUtils/utils";
 
 interface AllProjectsAdminProps {
   formReactState: React.Dispatch<
@@ -30,6 +32,7 @@ interface AllProjectsAdminProps {
       old_img_id: string;
       new_img_id: string;
       is_img_removed: boolean;
+      from_date: string;
     }>
   >;
   formDataValue: {
@@ -41,6 +44,7 @@ interface AllProjectsAdminProps {
     old_img_id: string;
     new_img_id: string;
     is_img_removed: boolean;
+    from_date: string;
   };
   imageReactState: React.Dispatch<React.SetStateAction<string>>;
   isEditBtnBool: boolean;
@@ -64,6 +68,7 @@ const AllProjectsAdmin = ({
   previewImgValue,
   adminFormVisibleReactState,
 }: AllProjectsAdminProps) => {
+  const { getISODate, strToDate, prettifyDate } = utils();
   const { projectData, loading, error, getProjectData } = useProjectPageData();
   const { editController, handleDelete, copyControllerLogic } =
     HandleAllProjectsAdmin();
@@ -97,6 +102,7 @@ const AllProjectsAdmin = ({
       old_img_id: "",
       new_img_id: "",
       is_img_removed: false,
+      from_date: "",
     });
     selectedFileReactState(null);
     imageReactState(bgImage);
@@ -117,6 +123,7 @@ const AllProjectsAdmin = ({
       console.error(err);
     }
   };
+
   const formatImgId = (img_url: string) => {
     const parts = img_url.split("/");
     return parts[parts.length - 2];
@@ -211,6 +218,7 @@ const AllProjectsAdmin = ({
               cardDescription={item.card_desc}
               cardBgImgUrl={item.card_img_url ? item.card_img_url : bgImage}
               cardGitLink={item.card_git_link}
+              fromDate={prettifyDate(item.card_from_date)}
               isEditing={true}
               controller={() => {
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -222,6 +230,7 @@ const AllProjectsAdmin = ({
                     github_url: item.card_git_link,
                     tags: item.card_tags,
                     img_url: previewImgValue,
+                    from_date: getISODate(item.card_from_date),
                   },
                   imageReactState,
                   item.card_img_url,
@@ -250,6 +259,7 @@ const AllProjectsAdmin = ({
                     card_git_link: item.card_git_link,
                     card_tags: item.card_tags,
                     card_img_id: item.card_img_id,
+                    card_from_date: getISODate(item.card_from_date),
                   },
                   imageReactState,
                   item.card_img_id,

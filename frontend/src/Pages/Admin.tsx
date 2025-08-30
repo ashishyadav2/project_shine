@@ -195,13 +195,13 @@ const Admin = () => {
                     onKeyDown={handleKeyDown}
                   ></input>
                 </div>
-                {/* <InputField
-                  type="text"
-                  fieldName="Tags"
+                <InputField
+                  type="date"
+                  fieldName="Start Date"
                   inputFunc={handleChange}
-                  value={formData.tags}
-                  name="tags"
-                /> */}
+                  value={formData.from_date}
+                  name="from_date"
+                />
               </div>
             </div>
             <div className="adminRight">

@@ -3,7 +3,9 @@ import { useState } from "react";
 import bgImage from "../assets/image_placeholder.jpg";
 import { HandlePopUp } from "./HandlePopUp";
 import { pull } from "lodash";
+import { utils } from "../jsUtils/utils";
 export const useAdminFormHandler = () => {
+  const { getISODate, strToDate } = utils();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewURL, setPreviewURL] = useState<string>(bgImage);
   const [activeImgClass, setActiveImgClass] = useState<string>("imagePreview");
@@ -20,6 +22,7 @@ export const useAdminFormHandler = () => {
     old_img_id: "",
     new_img_id: "",
     is_img_removed: false,
+    from_date: "",
   });
   const {
     popType,
@@ -103,6 +106,7 @@ export const useAdminFormHandler = () => {
       old_img_id: "",
       new_img_id: "",
       is_img_removed: false,
+      from_date: "",
     });
     setSelectedFile(null);
     setPreviewURL(bgImage);
@@ -165,6 +169,7 @@ export const useAdminFormHandler = () => {
         }
       } else {
         try {
+          // formData.from_date = `${strToDate(formData.from_date)}`;
           const response = await axios.patch(
             `http://localhost:8000/api/update_post/${formId}/`,
             formData
@@ -198,6 +203,7 @@ export const useAdminFormHandler = () => {
         card_git_link: formData.github_url,
         card_tags: formatTags(formData.tags),
         card_img_id: uploaded_image_id,
+        card_from_date: formData.from_date,
       };
       console.log("Add mode form data", data);
       if (uploaded_image_id != "") {

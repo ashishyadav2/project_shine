@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import BytesIO
 import json
 import re
@@ -36,17 +37,19 @@ class ReactView(APIView):
                 "card_git_link": doc.get("card_git_link", ""),
                 "card_tags": doc.get("card_tags", []),
                 "card_img_id": doc.get("card_img_id",""),
-                "card_img_url": img_url
+                "card_img_url": img_url,
+                "card_from_date": doc.get("card_from_date","2001-11-22")
             })
         return Response(output)
         
     def post(self, request):
         self.db_obj.start_session()
         response = None
+        print(request.data)
         try:
             self.db_obj.start_transaction()
-            print(f"from copy: {request.data}")
             isCopyMode = request.data.get("isCopyMode",False)
+            print(f"from copy: {request.data} is copy mode: {isCopyMode}")
             img_id = request.data.get("card_img_id","")
             new_img_id = None
             if isCopyMode and img_id!="":
@@ -66,7 +69,7 @@ class ReactView(APIView):
                         metadata=existing_img_file.metadata)
                     request.data["card_img_id"] = str(new_img_id)
                     del request.data["isCopyMode"]
-                    print(request.data)
+                    print(f"After del isCopyMode",request.data)
                 except Exception as ex:
                     self.db_obj.rollback_transaction()
                     response = Response({"message": "Cannot create copy"})
@@ -118,6 +121,7 @@ class ReactView(APIView):
                 update_fields["card_title"] = request.data.get("title","")
                 update_fields["card_desc"] = request.data.get("desc","")
                 update_fields["card_git_link"] = request.data.get("github_url","")
+                update_fields["card_from_date"]= datetime.strptime(request.data.get("from_date",""),"%Y-%m-%d")
                 tags = request.data.get("tags", "")
                 if isinstance(tags, str) and tags.strip():
                     update_fields["card_tags"] = re.split(r'\s*,\s*', tags)
@@ -173,16 +177,28 @@ class RealTimeSearchView(APIView):
     collection = db_obj.get_collection()
     gfs = db_obj.get_grid_fs()
     
+    def _create_response(self,results):
+        for item in results:
+            item["_id"] = str(item["_id"])           
+            item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
+        return results
+    
     def get(self,request):            
         query = request.GET.get('q', '')
         if not query:
             return Response([])
         results = list(self.collection.find({ "$text": { "$search": query } }).limit(10))  
-        print(results)
-        for item in results:
-            item["_id"] = str(item["_id"])           
-            item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
-        return Response(results)
+        print(results)        
+        return Response(self._create_response(results))
+    
+    def post(self,request):
+        print(request.data)
+        search_req = request.data
+        if not search_req:
+            return Response([])
+        results = list(self.collection.find())
+        results = []
+        return Response(self._create_response(results))
     
 class ImageUploadView(APIView):
     db_obj = DBConnect()
@@ -206,3 +222,14 @@ class ImageUploadView(APIView):
         file_id = self.gfs.put(image_file, filename=image_file.name, content_type=image_file.content_type)
         res = {"_id" : str(file_id)}
         return Response(res)
+    
+class GetTags(APIView):
+    db_obj = DBConnect()
+    collection = db_obj.get_collection()
+    def get(self,request):
+        db_results = list(self.collection.find({},{"card_tags": 1,"_id":0}))
+        results = {}
+        for item in db_results:
+            results.update({key: "" for key in item["card_tags"] })
+        # print(results)
+        return Response(list(results.keys()))

@@ -141,25 +141,32 @@
   @apply fixed flex justify-between items-center px-5 md:px-10 fixed z-50 w-screen py-5 bg-white md:bg-transparent;
 }
 #root {
-  background: url("./assets/bg.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  @apply w-full h-full;
   /* background-color: var(--bg-white); */
-}
-body {
-  background-color: var(--bg-white);
-}
-#overlay {
-  @apply flex flex-col justify-end bg-black bg-opacity-80 w-full h-screen py-12;
-  /* background: #becdf7;
+  background: #becdf7;
   background: radial-gradient(
     circle,
     rgba(190, 205, 247, 1) 0%,
     rgba(187, 222, 251, 1) 39%,
     rgba(255, 255, 255, 1) 100%,
     rgba(227, 242, 253, 1) 77%
-  ); */
+  );
+  @apply w-full h-full;
+}
+body {
+  background: url("./assets/bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  /* @apply w-screen h-screen; */
+}
+#overlay {
+  @apply flex flex-col justify-end w-full h-screen py-12;
+  background: #becdf7;
+  background: linear-gradient(
+    to bottom,
+    /* rgba(255, 255, 255, 1), */ rgba(38, 50, 56, 1),
+    rgba(38, 50, 56, 1)
+  );
 }
 .centerAbsolute {
   /* top: 50%;
@@ -238,6 +245,7 @@ body {
 }
 .cardContainerProject {
   @apply w-full flex flex-col flex-wrap pt-20 bg-gray-900;
+  min-height: 100vh;
   background: #becdf7;
   background: radial-gradient(
     circle,
@@ -272,11 +280,11 @@ body {
 .cardPageContainerBtm .cardContainer:hover {
   /* @apply flex flex-col w-3/12 rounded-lg px-5 py-7 shadow-lg m-5 text-black items-stretch; */
   /* border: var(--outline-border-width) solid var(--accent-color); */
-  /* transform: translateY(-10px); */
+  @apply lg:-translate-y-3;
   box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
 }
 .cardContent {
-  @apply flex flex-col justify-between h-full sm:px-5 sm:py-7 px-3 py-5;
+  @apply flex flex-col justify-between h-full sm:px-5 sm:pt-7 px-3 pt-5;
 }
 .cardContainer .categoryTag {
   @apply flex justify-center items-center text-black py-0.5 px-3 mx-1 rounded-full duration-300 bg-white my-1 lowercase outline-none;
@@ -341,6 +349,7 @@ input:focus {
     rgba(255, 255, 255, 1) 100%,
     rgba(227, 242, 253, 1) 77%
   );
+  min-height: 100vh;
 }
 .adminFormContainer .activeActionBtn {
   @apply px-10;
@@ -647,4 +656,131 @@ input:focus {
 }
 .cardActions button:hover .tooltip {
   visibility: visible;
+}
+.cardDateDiv {
+  @apply flex justify-end pb-5 pt-3 px-5 text-sm;
+  color: var(--gray);
+}
+/* client project page search area */
+.searchProjectSuite {
+  @apply flex flex-col items-center py-5;
+}
+.searchProjectSuite .searchRegionAdmin {
+  @apply relative;
+}
+.searchCheckboxes {
+  @apply flex flex-col;
+}
+.searchBarExtensionContainer {
+  @apply grid mt-10 w-full md:w-8/12 gap-5 p-5 bg-white rounded-lg font-ui;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  grid-template-rows: auto 1fr;
+  grid-template-cols: 1fr 1fr;
+}
+.searchDateAndSort {
+  @apply grid grid-cols-3 grid-rows-1 gap-5;
+}
+.sdasDateRange {
+  @apply flex justify-end col-span-2;
+}
+.sdasDateRange .inputField {
+  @apply my-0 ml-10 py-0;
+}
+.sdasSortDiv {
+  @apply flex flex-col;
+}
+.sdasSortDiv select {
+  @apply p-1 mt-1 rounded-lg;
+  border: var(--outline-border-width) solid var(--gray-md-s);
+}
+.searchByTags {
+  @apply flex flex-col justify-start items-start flex-wrap col-span-2;
+}
+.searchByTags .tags {
+  @apply mt-3 flex justify-start items-start flex-wrap;
+}
+.searchByTags .categoryTag {
+  @apply mb-2 mr-2 bg-transparent;
+  border: var(--outline-border-width) solid var(--gray-md);
+  color: var(--gray-md);
+}
+.searchByTags .categoryTag:hover {
+  background-color: var(--accent-color-light);
+  border: var(--outline-border-width) solid var(--accent-color);
+  color: var(--accent-color);
+}
+.searchByTags .categoryTagSelected {
+  background-color: var(--accent-color-light);
+  border: var(--outline-border-width) solid var(--accent-color);
+  color: var(--accent-color);
+}
+/* Customize the label (the container) */
+.container {
+  @apply mb-2;
+  display: flex;
+  height: auto;
+  position: relative;
+  padding-left: 35px;
+  /* margin-bottom: 12px; */
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  @apply rounded;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: var(--accent-color);
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 10px;
+  top: 7px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
