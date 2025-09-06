@@ -1,3 +1,9 @@
+import {
+  mdiDotsVertical,
+  mdiFolderAlert,
+  mdiFolderAlertOutline,
+  mdiSort,
+} from "@mdi/js";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
@@ -20,6 +26,8 @@ import { HandlePopUp } from "../EventsHandler/HandlePopUp";
 import Popup from "../Utilities/Popup";
 import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
 import { utils } from "../jsUtils/utils";
+import { SearchBarExtension } from "./SearchBarExtension";
+import Icon from "@mdi/react";
 
 interface AllProjectsAdminProps {
   formReactState: React.Dispatch<
@@ -69,7 +77,8 @@ const AllProjectsAdmin = ({
   adminFormVisibleReactState,
 }: AllProjectsAdminProps) => {
   const { getISODate, strToDate, prettifyDate } = utils();
-  const { projectData, loading, error, getProjectData } = useProjectPageData();
+  const { projectData, loading, error, getProjectData, setProjectData } =
+    useProjectPageData();
   const { editController, handleDelete, copyControllerLogic } =
     HandleAllProjectsAdmin();
 
@@ -80,6 +89,8 @@ const AllProjectsAdmin = ({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [showDeletePopUP, setShowDeletePopUP] = useState(false);
+  const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
+  const [showSearchExt, setShowSearchExt] = useState(false);
   const [delItem, setDelItem] = useState({
     card_img_id: "",
     card_id: "",
@@ -152,11 +163,37 @@ const AllProjectsAdmin = ({
   const expandSearchBox = () => {
     setExpanded(true);
   };
-
+  const fetchResultsExt = async (searchReqObj: Object) => {
+    if (!searchReqObj) {
+      return setResults([]);
+    }
+    try {
+      if (!inputChangeHandlers.dataValidation()) {
+        Notify("Invalid date range", "pWarn");
+        return;
+      }
+      const res = await axios.post(
+        `http://localhost:8000/api/search/`,
+        searchReqObj
+      );
+      if (res.status == 200) {
+        setResults(res.data);
+        setProjectData(res.data);
+      } else {
+        Notify("No results found", "pWarn");
+        setProjectData([]);
+        setResults([]);
+      }
+      console.log(res.data);
+    } catch (err) {
+      Notify("No results found", "pWarn");
+      console.error(err);
+    }
+  };
   return (
     <>
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
-      <div className="searchRegionAdmin">
+      {/* <div className="searchRegionAdmin">
         {!expanded && (
           <div className="searchBarBox" onClick={expandSearchBox}>
             <span>
@@ -211,74 +248,152 @@ const AllProjectsAdmin = ({
           />
         </div>
         <div className="searchCategories"></div>
+      </div> */}
+      <div className="adminHeaders">
+        <p>Admin Panel</p>
       </div>
-      <div className="cardPageContainerBtmAdmin">
-        {(query && results.length > 0 ? results : projectData).map(
-          (item, index) => (
-            <Card
-              key={index}
-              cardTags={item.card_tags}
-              cardTitle={item.card_title}
-              cardDescription={item.card_desc}
-              cardBgImgUrl={item.card_img_url ? item.card_img_url : bgImage}
-              cardGitLink={item.card_git_link}
-              fromDate={prettifyDate(item.card_from_date)}
-              isEditing={true}
-              controller={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                editController(
-                  formReactState,
-                  {
-                    title: item.card_title,
-                    desc: item.card_desc,
-                    github_url: item.card_git_link,
-                    tags: item.card_tags,
-                    img_url: previewImgValue,
-                    from_date: getISODate(item.card_from_date),
-                  },
-                  imageReactState,
-                  item.card_img_url,
-                  item.card_img_id,
-                  item.card_id,
-                  isEditBtnBool,
-                  isEditReactState,
-                  selectedFileValue,
-                  selectedFileReactState,
-                  setFormIdReactState,
-                  adminFormVisibleReactState
-                );
+      <div className="searchProjectSuite">
+        <div className="searchRegionAdmin">
+          {!expanded && (
+            <div className="searchBarBox" onClick={expandSearchBox}>
+              <span>
+                <FontAwesomeIcon icon={faMagnifyingGlass} flip={"horizontal"} />
+              </span>
+              <span>Search</span>
+            </div>
+          )}
+          <div
+            className={`searchBar ${
+              expanded ? "scale-100 opacity-100" : "scale-0 opacity-0"
+            }`}
+          >
+            <FontAwesomeIcon
+              onClick={() => {
+                if (expanded) {
+                  setExpanded(false);
+                  setShowSearchExt(false);
+                }
               }}
-              deleteController={() => {
-                setShowDeletePopUP(true);
-                // handleDelete(item.card_img_id, item.card_id);
-                // confirmDelete(item);
-                setDelItem(item);
-              }}
-              copyController={() => {
-                copyControllerLogic(
-                  formReactState,
-                  {
-                    card_title: item.card_title,
-                    card_desc: item.card_desc,
-                    card_git_link: item.card_git_link,
-                    card_tags: item.card_tags,
-                    card_img_id: item.card_img_id,
-                    card_from_date: getISODate(item.card_from_date),
-                  },
-                  imageReactState,
-                  item.card_img_id,
-                  item.card_id,
-                  isEditBtnBool,
-                  isEditReactState,
-                  selectedFileValue,
-                  selectedFileReactState,
-                  setFormIdReactState,
-                  adminFormVisibleReactState
-                );
+              icon={faMagnifyingGlass}
+              flip={"horizontal"}
+            />
+            <InputField
+              type={"text"}
+              placeholder={"Search"}
+              value={query}
+              inputFunc={(e) => {
+                if (e.target.value.length == 0) {
+                  setResults([]);
+                  setExpanded(false);
+                  setShowSearchExt(false);
+                }
+                inputChangeHandlers.handleSearchText(e.target.value);
+                setQuery(e.target.value);
               }}
             />
-          )
+            {query.length >= 1 && (
+              <ActionButton
+                id={"searchBarCloseBtn"}
+                btnText={<FontAwesomeIcon icon={faXmark} />}
+                btnType={"active"}
+                btnFun={() => {
+                  setQuery("");
+                  // setExpanded(false);
+                }}
+              />
+            )}
+            <ActionButton
+              btnText={<FontAwesomeIcon icon={faArrowRight} />}
+              btnType={"active"}
+              btnFun={() => {
+                // fetchResults(query);
+                fetchResultsExt(searchReq);
+              }}
+            />
+
+            <ActionButton
+              btnText={<Icon path={mdiDotsVertical} size={1} />}
+              btnType={"inactive"}
+              btnFun={(e) => {
+                setShowSearchExt(!showSearchExt);
+              }}
+            />
+          </div>
+        </div>
+        {showSearchExt && (
+          <SearchBarExtension
+            tags={tags}
+            searchReq={searchReq}
+            inputChangeHandlers={inputChangeHandlers}
+            showHideFlag={showSearchExt}
+          />
         )}
+      </div>
+      <div className="cardPageContainerBtmAdmin">
+        {projectData.map((item, index) => (
+          <Card
+            key={index}
+            cardTags={item.card_tags}
+            cardTitle={item.card_title}
+            cardDescription={item.card_desc}
+            cardBgImgUrl={item.card_img_url ? item.card_img_url : bgImage}
+            cardGitLink={item.card_git_link}
+            fromDate={prettifyDate(item.card_from_date)}
+            isEditing={true}
+            controller={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              editController(
+                formReactState,
+                {
+                  title: item.card_title,
+                  desc: item.card_desc,
+                  github_url: item.card_git_link,
+                  tags: item.card_tags,
+                  img_url: previewImgValue,
+                  from_date: getISODate(item.card_from_date),
+                },
+                imageReactState,
+                item.card_img_url,
+                item.card_img_id,
+                item.card_id,
+                isEditBtnBool,
+                isEditReactState,
+                selectedFileValue,
+                selectedFileReactState,
+                setFormIdReactState,
+                adminFormVisibleReactState
+              );
+            }}
+            deleteController={() => {
+              setShowDeletePopUP(true);
+              // handleDelete(item.card_img_id, item.card_id);
+              // confirmDelete(item);
+              setDelItem(item);
+            }}
+            copyController={() => {
+              copyControllerLogic(
+                formReactState,
+                {
+                  card_title: item.card_title,
+                  card_desc: item.card_desc,
+                  card_git_link: item.card_git_link,
+                  card_tags: item.card_tags,
+                  card_img_id: item.card_img_id,
+                  card_from_date: getISODate(item.card_from_date),
+                },
+                imageReactState,
+                item.card_img_id,
+                item.card_id,
+                isEditBtnBool,
+                isEditReactState,
+                selectedFileValue,
+                selectedFileReactState,
+                setFormIdReactState,
+                adminFormVisibleReactState
+              );
+            }}
+          />
+        ))}
         <span className="addBtn">
           <ActionButton
             btnText={<FontAwesomeIcon icon={faPlus} />}

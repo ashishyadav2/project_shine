@@ -24,5 +24,5 @@ export const useProjectPageData = () => {
       });
   };
 
-  return { projectData, loading, error, getProjectData };
+  return { projectData, loading, error, getProjectData, setProjectData };
 };

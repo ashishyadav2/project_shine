@@ -4,6 +4,7 @@ import {
   mdiDotsVertical,
   mdiFolderAlert,
   mdiFolderAlertOutline,
+  mdiSort,
 } from "@mdi/js";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,12 +33,15 @@ const Projects = () => {
   function showHideSearchBar() {
     setIsVisible(!isVisible);
   }
-  const { projectData, loading, error, getProjectData } = useProjectPageData();
+  const { projectData, loading, error, getProjectData, setProjectData } =
+    useProjectPageData();
   const [expanded, setExpanded] = useState(false);
-  const [showSearchExt, setShowSearchExt] = useState(false);
+
+  // const [showSearchExt, setShowSearchExt] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
-  const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
+  const [selectedSortOrder, setSelectedSortOrder] = useState("-1");
+  // const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
   const {
     popType,
     setPopupType,
@@ -53,39 +57,21 @@ const Projects = () => {
   useEffect(() => {
     getProjectData(); // fetch data on mount
   }, []);
-  // const fetchResults = async (searchText: string) => {
-  //   if (!searchText) {
-  //     return setResults([]);
-  //   }
-  //   try {
-  //     const res = await axios.get(
-  //       `http://localhost:8000/api/search/?q=${searchText}/`
-  //     );
-  //     setResults(res.data);
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
-  const fetchResultsExt = async (searchReqObj: Object) => {
-    if (!searchReqObj) {
+  const fetchResults = async (searchText: string) => {
+    if (!searchText) {
       return setResults([]);
     }
     try {
-      if (!inputChangeHandlers.dataValidation()) {
-        Notify("Invalid date range", "pWarn");
-        return;
-      }
-      const res = await axios.post(
-        `http://localhost:8000/api/search/`,
-        searchReqObj
+      const res = await axios.get(
+        `http://localhost:8000/api/search/?q=${searchText}/`
       );
       if (res.status == 200) {
         setResults(res.data);
+        setProjectData(res.data);
       } else {
         Notify("No results found", "pWarn");
         setResults([]);
+        setProjectData([]);
       }
       console.log(res.data);
     } catch (err) {
@@ -93,6 +79,55 @@ const Projects = () => {
       console.error(err);
     }
   };
+  useEffect(() => {
+    if (!selectedSortOrder) return;
+    sortFilter(selectedSortOrder);
+  }, [selectedSortOrder]);
+  const sortFilter = async (sortOrder: string) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8000/api/search/?sort=${sortOrder}`
+      );
+      if (res.status == 200) {
+        setResults(res.data);
+        setProjectData(res.data);
+      } else {
+        Notify("No results found", "pWarn");
+        setProjectData([]);
+        setResults([]);
+      }
+      // console.log(res.data);
+    } catch (err) {
+      Notify("No results found", "pWarn");
+      console.error(err);
+    }
+  };
+
+  // const fetchResultsExt = async (searchReqObj: Object) => {
+  //   if (!searchReqObj) {
+  //     return setResults([]);
+  //   }
+  //   try {
+  //     if (!inputChangeHandlers.dataValidation()) {
+  //       Notify("Invalid date range", "pWarn");
+  //       return;
+  //     }
+  //     const res = await axios.post(
+  //       `http://localhost:8000/api/search/`,
+  //       searchReqObj
+  //     );
+  //     if (res.status == 200) {
+  //       setResults(res.data);
+  //     } else {
+  //       Notify("No results found", "pWarn");
+  //       setResults([]);
+  //     }
+  //     console.log(res.data);
+  //   } catch (err) {
+  //     Notify("No results found", "pWarn");
+  //     console.error(err);
+  //   }
+  // };
   return (
     <>
       <Header isActive="projects" />
@@ -126,6 +161,7 @@ const Projects = () => {
                 onClick={() => {
                   if (expanded) {
                     setExpanded(false);
+                    // setShowSearchExt(false);
                   }
                 }}
                 icon={faMagnifyingGlass}
@@ -139,8 +175,9 @@ const Projects = () => {
                   if (e.target.value.length == 0) {
                     setResults([]);
                     setExpanded(false);
+                    // setShowSearchExt(false);
                   }
-                  inputChangeHandlers.handleSearchText(e.target.value);
+                  // inputChangeHandlers.handleSearchText(e.target.value);
                   setQuery(e.target.value);
                 }}
               />
@@ -159,42 +196,54 @@ const Projects = () => {
                 btnText={<FontAwesomeIcon icon={faArrowRight} />}
                 btnType={"active"}
                 btnFun={() => {
-                  // fetchResults(query);
-                  fetchResultsExt(searchReq);
+                  fetchResults(query);
+                  // fetchResultsExt(searchReq);
                 }}
               />
 
-              <ActionButton
+              {/* <ActionButton
                 btnText={<Icon path={mdiDotsVertical} size={1} />}
                 btnType={"inactive"}
                 btnFun={(e) => {
                   setShowSearchExt(!showSearchExt);
                 }}
-              />
+              /> */}
             </div>
           </div>
-          {showSearchExt && (
+          {/* {showSearchExt && (
             <SearchBarExtension
               tags={tags}
               searchReq={searchReq}
               inputChangeHandlers={inputChangeHandlers}
               showHideFlag={showSearchExt}
             />
-          )}
+          )} */}
         </div>
+        <div className="sortFilterUser">
+          <div className="sortFilterDropDown">
+            <select
+              value={selectedSortOrder}
+              onChange={(e) => {
+                setSelectedSortOrder(e.target.value);
+              }}
+            >
+              <option value={-1}>Latest</option>
+              <option value={1}>Older</option>
+            </select>
+          </div>
+        </div>
+
         <div className="cardPageContainerBtm">
-          {(query && results.length > 0 ? results : projectData).map(
-            (item, index) => (
-              <Card
-                key={index}
-                cardTags={item.card_tags}
-                cardTitle={item.card_title}
-                cardDescription={item.card_desc}
-                cardBgImgUrl={item.card_img_url ? item.card_img_url : ""}
-                fromDate={prettifyDate(item.card_from_date)}
-              />
-            )
-          )}
+          {projectData.map((item, index) => (
+            <Card
+              key={index}
+              cardTags={item.card_tags}
+              cardTitle={item.card_title}
+              cardDescription={item.card_desc}
+              cardBgImgUrl={item.card_img_url ? item.card_img_url : ""}
+              fromDate={prettifyDate(item.card_from_date)}
+            />
+          ))}
         </div>
       </div>
     </>

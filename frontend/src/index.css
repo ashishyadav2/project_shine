@@ -231,10 +231,12 @@ body {
 .cardPageContainerBtm {
   @apply flex flex-wrap w-full bg-gray-900 justify-center pt-10 bg-transparent;
 }
-.cardPageContainerTop {
+.cardPageContainerTop,
+.adminHeaders {
   @apply flex flex-wrap w-full bg-gray-900 justify-center pt-10 bg-transparent;
 }
-.cardPageContainerTop p {
+.cardPageContainerTop p,
+.adminHeaders p {
   @apply py-2 text-5xl uppercase text-black text-justify font-serif;
 }
 .cardTagsContainer {
@@ -340,7 +342,7 @@ input:focus {
   pointer-events: none; /* Allow page scrolling and interaction through backdrop */
 }
 .adminFormContainer {
-  @apply w-full h-full flex justify-center pt-2 md:pt-10 lg:pt-20 items-start;
+  @apply w-full h-full flex-col justify-center pt-2 md:pt-10 lg:pt-20 items-start;
   background: #becdf7;
   background: radial-gradient(
     circle,
@@ -378,7 +380,9 @@ input:focus {
   @apply bg-white w-5/6 px-10 py-10 flex flex-col items-center absolute duration-300 opacity-0;
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
   border-radius: var(--border-radius-md);
-  transform: translate(0, -100%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -200%);
   z-index: 5;
 }
 .adminForm textarea {
@@ -402,6 +406,9 @@ input:focus {
   @apply lg:w-5/6 lg:px-12 lg:py-10 absolute;
   box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
   border-radius: var(--border-radius-md);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   /* overflow-y: scroll; */
 }
 .adminLRContainer {
@@ -675,7 +682,7 @@ input:focus {
 }
 /* client project page search area */
 .searchProjectSuite {
-  @apply flex flex-col items-center py-5;
+  @apply flex flex-col items-center py-5 w-full;
 }
 .searchProjectSuite .searchRegionAdmin {
   @apply relative;
@@ -684,25 +691,25 @@ input:focus {
   @apply flex flex-col row-start-1 row-span-1 col-start-1 col-span-1;
 }
 .searchBarExtensionContainer {
-  @apply grid mt-10 w-full md:w-8/12 gap-5 p-5 bg-white rounded-lg font-ui md:grid-cols-[auto_1fr] md:grid-rows-[auto_1fr] grid-cols-[auto] grid-rows-[auto_auto_auto_1fr];
+  @apply grid mt-10 w-full md:w-11/12 lg:w-7/12 md:gap-5 p-5 bg-white rounded-lg font-ui md:grid-cols-[30%_70%] md:grid-rows-[1fr_1fr] grid-cols-[1fr] grid-rows-[auto_auto_auto_1fr];
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   /* grid-template-rows: auto 1fr;
   grid-template-cols: auto 1fr; */
 }
 .searchDateAndSort {
-  @apply grid md:grid-cols-3 md:grid-rows-1 gap-5;
   @apply row-start-2 row-span-2 col-start-1 col-span-1;
-  @apply grid-cols-2 grid-rows-2;
+  @apply md:row-start-1 md:row-span-1 md:col-start-2 md:col-span-1;
+  @apply flex md:flex-row flex-col py-5 md:justify-between md:pr-5;
 }
 .sdasDateRange {
-  @apply flex md:justify-end md:col-span-2 justify-between col-span-1;
+  @apply flex md:justify-end justify-between pb-5 md:w-5/6;
 }
 .sdasDateRange .inputField {
-  @apply my-0 md:ml-10 py-0 mr-12;
+  @apply py-0 md:mr-5 m-0;
 }
 .sdasSortDiv {
-  @apply flex flex-col row-start-2 row-span-1 col-start-1 col-span-2;
+  @apply flex flex-col md:w-3/6;
 }
 .sdasSortDiv select {
   @apply p-1 mt-1 rounded-lg;
@@ -728,6 +735,19 @@ input:focus {
   background-color: var(--accent-color-light);
   border: var(--outline-border-width) solid var(--accent-color);
   color: var(--accent-color);
+}
+/* sorting feature for user */
+.sortFilterUser {
+  @apply flex justify-end w-11/12 md:w-9/12  mr-auto ml-auto;
+}
+.sortFilterDropDown select {
+  @apply p-1 mt-1 rounded-full;
+  border: var(--outline-border-width) solid var(--gray-md-s);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+.sortFilterDropDown select:focus {
+  border: var(--outline-border-width) solid var(--accent-color);
 }
 /* Customize the label (the container) */
 .container {
