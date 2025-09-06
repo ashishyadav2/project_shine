@@ -80,7 +80,11 @@ const AllProjectsAdmin = ({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [showDeletePopUP, setShowDeletePopUP] = useState(false);
-  const [delItem, setDelItem] = useState({ card_img_id: "", card_id: "" });
+  const [delItem, setDelItem] = useState({
+    card_img_id: "",
+    card_id: "",
+    card_tags: [],
+  });
   const {
     popType,
     setPopupType,
@@ -306,7 +310,11 @@ const AllProjectsAdmin = ({
               btnType={"active"}
               btnHType={"button"}
               btnFun={() => {
-                handleDelete(delItem.card_img_id, delItem.card_id);
+                handleDelete(
+                  delItem.card_img_id,
+                  delItem.card_id,
+                  delItem.card_tags
+                );
                 setShowDeletePopUP(false);
                 Notify("Post deleted", "pSuccess");
                 setTimeout(() => {

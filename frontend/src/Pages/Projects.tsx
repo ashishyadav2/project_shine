@@ -1,4 +1,10 @@
 import ReactDOM from "react-dom";
+import Icon from "@mdi/react";
+import {
+  mdiDotsVertical,
+  mdiFolderAlert,
+  mdiFolderAlertOutline,
+} from "@mdi/js";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "../components/Navbar";
@@ -17,6 +23,8 @@ import axios from "axios";
 import { SearchBarExtension } from "../components/SearchBarExtension";
 import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
 import { utils } from "../jsUtils/utils";
+import { HandlePopUp } from "../EventsHandler/HandlePopUp";
+import Popup from "../Utilities/Popup";
 
 const Projects = () => {
   const { getISODate, strToDate, prettifyDate } = utils();
@@ -26,42 +34,62 @@ const Projects = () => {
   }
   const { projectData, loading, error, getProjectData } = useProjectPageData();
   const [expanded, setExpanded] = useState(false);
+  const [showSearchExt, setShowSearchExt] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
+  const {
+    popType,
+    setPopupType,
+    popupMsg,
+    setPopupMsg,
+    pShowHide,
+    setPShowHide,
+    Notify,
+  } = HandlePopUp();
   const expandSearchBox = () => {
     setExpanded(true);
   };
   useEffect(() => {
     getProjectData(); // fetch data on mount
   }, []);
-  const fetchResults = async (searchText: string) => {
-    if (!searchText) {
-      return setResults([]);
-    }
-    try {
-      const res = await axios.get(
-        `http://localhost:8000/api/search/?q=${searchText}/`
-      );
-      setResults(res.data);
-      console.log(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // const fetchResults = async (searchText: string) => {
+  //   if (!searchText) {
+  //     return setResults([]);
+  //   }
+  //   try {
+  //     const res = await axios.get(
+  //       `http://localhost:8000/api/search/?q=${searchText}/`
+  //     );
+  //     setResults(res.data);
+  //     console.log(res.data);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   const fetchResultsExt = async (searchReqObj: Object) => {
     if (!searchReqObj) {
       return setResults([]);
     }
     try {
+      if (!inputChangeHandlers.dataValidation()) {
+        Notify("Invalid date range", "pWarn");
+        return;
+      }
       const res = await axios.post(
         `http://localhost:8000/api/search/`,
         searchReqObj
       );
-      setResults(res.data);
+      if (res.status == 200) {
+        setResults(res.data);
+      } else {
+        Notify("No results found", "pWarn");
+        setResults([]);
+      }
       console.log(res.data);
     } catch (err) {
+      Notify("No results found", "pWarn");
       console.error(err);
     }
   };
@@ -70,9 +98,11 @@ const Projects = () => {
       <Header isActive="projects" />
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
+      <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
       <div className="cardContainerProject">
         <div className="cardPageContainerTop">
           <p>Projects</p>
+          {/* <Icon path={mdiFolderAlert} size={7} /> */}
         </div>
         <div className="searchProjectSuite">
           <div className="searchRegionAdmin">
@@ -110,6 +140,7 @@ const Projects = () => {
                     setResults([]);
                     setExpanded(false);
                   }
+                  inputChangeHandlers.handleSearchText(e.target.value);
                   setQuery(e.target.value);
                 }}
               />
@@ -132,13 +163,24 @@ const Projects = () => {
                   fetchResultsExt(searchReq);
                 }}
               />
+
+              <ActionButton
+                btnText={<Icon path={mdiDotsVertical} size={1} />}
+                btnType={"inactive"}
+                btnFun={(e) => {
+                  setShowSearchExt(!showSearchExt);
+                }}
+              />
             </div>
           </div>
-          <SearchBarExtension
-            tags={tags}
-            searchReq={searchReq}
-            inputChangeHandlers={inputChangeHandlers}
-          />
+          {showSearchExt && (
+            <SearchBarExtension
+              tags={tags}
+              searchReq={searchReq}
+              inputChangeHandlers={inputChangeHandlers}
+              showHideFlag={showSearchExt}
+            />
+          )}
         </div>
         <div className="cardPageContainerBtm">
           {(query && results.length > 0 ? results : projectData).map(

@@ -19,10 +19,10 @@ export const useAdminFormHandler = () => {
     github_url: "",
     tags: "",
     img_url: "",
+    from_date: "",
     old_img_id: "",
     new_img_id: "",
     is_img_removed: false,
-    from_date: "",
   });
   const {
     popType,
@@ -103,10 +103,10 @@ export const useAdminFormHandler = () => {
       github_url: "",
       tags: "",
       img_url: "",
+      from_date: "",
       old_img_id: "",
       new_img_id: "",
       is_img_removed: false,
-      from_date: "",
     });
     setSelectedFile(null);
     setPreviewURL(bgImage);

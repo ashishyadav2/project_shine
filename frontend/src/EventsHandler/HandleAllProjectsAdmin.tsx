@@ -40,7 +40,11 @@ export const HandleAllProjectsAdmin = () => {
     console.log("Image file", selectedFileValue);
   };
 
-  const handleDelete = async (img_id: string, card_id: string) => {
+  const handleDelete = async (
+    img_id: string,
+    card_id: string,
+    card_tags: string[]
+  ) => {
     try {
       const response = await axios.delete(
         `http://localhost:8000/api/delete_post/`,
@@ -48,6 +52,7 @@ export const HandleAllProjectsAdmin = () => {
           data: {
             img_id,
             card_id,
+            card_tags,
           },
         }
       );

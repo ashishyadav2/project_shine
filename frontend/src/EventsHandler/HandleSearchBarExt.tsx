@@ -7,7 +7,7 @@ export const useSearchBarExt = () => {
     search_text: "",
     filter: {
       all_chk: false,
-      title_chk: false,
+      title_chk: true,
       desc_chk: false,
     },
     date_range: {
@@ -16,7 +16,7 @@ export const useSearchBarExt = () => {
       min_date: new Date(2019, 0, 2).toISOString().split("T")[0],
       max_date: new Date().toISOString().split("T")[0],
     },
-    sort: 1,
+    sort: -1,
     tags: [] as string[],
   }));
 
@@ -24,7 +24,7 @@ export const useSearchBarExt = () => {
     const fetchTags = async () => {
       try {
         const res = await axios.get<string[]>(
-          "http://localhost:8000/api/get_tags/"
+          `${import.meta.env.VITE_BACKEND_URL}/api/get_tags/`
         );
         setTags(res.data);
         console.log(res.data);
@@ -37,13 +37,18 @@ export const useSearchBarExt = () => {
   }, []);
   const handleCheckBoxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
-    setSearchReq((prev) => ({
-      ...prev,
-      filter: {
-        ...prev.filter,
-        [name]: checked,
-      },
-    }));
+    setSearchReq((prev) => {
+      let chkFilter = { ...prev.filter, [name]: checked };
+      if (name == "all_chk") {
+        chkFilter = { ...chkFilter, title_chk: checked, desc_chk: checked };
+      }
+      if (chkFilter.desc_chk && chkFilter.title_chk) {
+        chkFilter.all_chk = true;
+      } else if (name != "all_chk") {
+        chkFilter.all_chk = false;
+      }
+      return { ...prev, filter: chkFilter };
+    });
   };
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,6 +60,7 @@ export const useSearchBarExt = () => {
       },
     }));
   };
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSearchReq((prev) => ({
       ...prev,
@@ -69,12 +75,29 @@ export const useSearchBarExt = () => {
         : [...prev.tags, tag],
     }));
   };
-
+  const handleSearchTextChange = (searchText: string) => {
+    setSearchReq((prev) => ({
+      ...prev,
+      search_text: searchText,
+    }));
+  };
+  const validateSearchData = () => {
+    const from_date = searchReq.date_range.from;
+    const to_date = searchReq.date_range.to;
+    const min_date = searchReq.date_range.min_date;
+    const max_date = searchReq.date_range.max_date;
+    if (from_date < min_date || to_date > max_date || to_date < from_date) {
+      return false;
+    }
+    return true;
+  };
   const inputChangeHandlers = {
     handleCheckBoxes: handleCheckBoxChange,
     handleDate: handleDateChange,
     handleSort: handleSortChange,
     handleTags: handleTagsChange,
+    handleSearchText: handleSearchTextChange,
+    dataValidation: validateSearchData,
   };
   return { tags, searchReq, inputChangeHandlers };
 };

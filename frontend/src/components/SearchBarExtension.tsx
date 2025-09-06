@@ -3,17 +3,21 @@ import InputField from "./InputField";
 import TagContainer from "./TagContainer";
 import { SearchBarProvider } from "./SearchBarContext";
 import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 interface SearchBarExtensionProps {
   tags: string[];
   searchReq: any;
   inputChangeHandlers: any;
+  showHideFlag: boolean;
 }
 export const SearchBarExtension = ({
   tags,
   searchReq,
   inputChangeHandlers,
+  showHideFlag,
 }: SearchBarExtensionProps) => {
   // const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
+
   console.log(searchReq);
   return (
     <SearchBarProvider
@@ -21,7 +25,11 @@ export const SearchBarExtension = ({
       selectedTags={searchReq.tags}
       isSearchMode={true}
     >
-      <div className="searchBarExtensionContainer">
+      <div
+        className={`searchBarExtensionContainer ${
+          showHideFlag ? "scale-100 opacity-100" : "scale-0 opacity-0"
+        }`}
+      >
         <div className="searchCheckboxes">
           <label className="container">
             All
@@ -85,8 +93,8 @@ export const SearchBarExtension = ({
               value={searchReq.sort}
               onChange={inputChangeHandlers.handleSort}
             >
-              <option value={1}>Latest</option>
-              <option value={0}>Older</option>
+              <option value={-1}>Latest</option>
+              <option value={1}>Older</option>
             </select>
           </div>
         </div>
