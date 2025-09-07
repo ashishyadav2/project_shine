@@ -4,7 +4,7 @@ import axios from "axios";
 export const useProjectPageData = () => {
   const [projectData, setProjectData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   const getProjectData = () => {
     setLoading(true);
@@ -13,11 +13,12 @@ export const useProjectPageData = () => {
       .then((response) => {
         console.log(response.data);
         setProjectData(response.data);
-        setError(null);
+        setError(false);
       })
       .catch((err) => {
         console.error(err);
-        setError("Something went wrong while fetching project data.");
+        setProjectData([]);
+        setError(true);
       })
       .finally(() => {
         setLoading(false);

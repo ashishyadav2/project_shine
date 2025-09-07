@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ActionButton from "./ActionButton";
 import TagContainer from "./TagContainer";
@@ -8,6 +10,7 @@ import {
   faPen,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+
 interface CardProps {
   cardTags: string[];
   cardTitle: string;
@@ -20,6 +23,7 @@ interface CardProps {
   deleteController?: () => void;
   copyController?: () => void;
 }
+
 const Card = ({
   cardTags,
   cardTitle,
@@ -32,12 +36,25 @@ const Card = ({
   deleteController,
   copyController,
 }: CardProps) => {
+  const { ref, inView } = useInView({
+    triggerOnce: true, // Only trigger once
+    threshold: 0.1, // Load when 10% visible
+  });
+
+  const [bgImage, setBgImage] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (inView && cardBgImgUrl) {
+      setBgImage(`url(${cardBgImgUrl})`);
+    }
+  }, [inView, cardBgImgUrl]);
+
   return (
-    <div className="cardContainer">
+    <div className="cardContainer" ref={ref}>
       <div
         className="cardBgImg"
         style={{
-          backgroundImage: cardBgImgUrl ? `url(${cardBgImgUrl})` : undefined,
+          backgroundImage: bgImage,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -92,7 +109,6 @@ const Card = ({
 
       <div className="cardDateDiv font-ui">
         <span className="from">{fromDate}</span>
-        {/* <span className="to">Today</span> */}
       </div>
     </div>
   );

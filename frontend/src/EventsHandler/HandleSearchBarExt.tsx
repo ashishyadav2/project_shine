@@ -86,7 +86,7 @@ export const useSearchBarExt = () => {
     const to_date = searchReq.date_range.to;
     const min_date = searchReq.date_range.min_date;
     const max_date = searchReq.date_range.max_date;
-    if (from_date < min_date || to_date > max_date || to_date < from_date) {
+    if (to_date < from_date) {
       return false;
     }
     return true;

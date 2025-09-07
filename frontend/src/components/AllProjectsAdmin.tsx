@@ -20,6 +20,7 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import debounce from "lodash.debounce";
+import { range } from "lodash";
 import axios from "axios";
 import bgImage from "../assets/image_placeholder.jpg";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
@@ -28,6 +29,7 @@ import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
 import { utils } from "../jsUtils/utils";
 import { SearchBarExtension } from "./SearchBarExtension";
 import Icon from "@mdi/react";
+import Skeleton from "./Skeleton";
 
 interface AllProjectsAdminProps {
   formReactState: React.Dispatch<
@@ -81,7 +83,7 @@ const AllProjectsAdmin = ({
     useProjectPageData();
   const { editController, handleDelete, copyControllerLogic } =
     HandleAllProjectsAdmin();
-
+  const [pageLoading, setPageLoading] = useState(true);
   useEffect(() => {
     getProjectData();
   }, []);
@@ -159,6 +161,11 @@ const AllProjectsAdmin = ({
   //     console.error(err);
   //   }
   // }, 300);
+  useEffect(() => {
+    if (projectData && projectData.length > 0) {
+      setPageLoading(false);
+    }
+  }, [projectData]);
   const [expanded, setExpanded] = useState(false);
   const expandSearchBox = () => {
     setExpanded(true);
@@ -329,7 +336,14 @@ const AllProjectsAdmin = ({
           />
         )}
       </div>
+      {loading && <Skeleton />}
       <div className="cardPageContainerBtmAdmin">
+        {error && (
+          <span>
+            <Icon path={mdiFolderAlert} size={7} />
+            <br></br>No project has been created
+          </span>
+        )}
         {projectData.map((item, index) => (
           <Card
             key={index}

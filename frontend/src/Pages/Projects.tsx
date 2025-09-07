@@ -26,6 +26,7 @@ import { useSearchBarExt } from "../EventsHandler/HandleSearchBarExt";
 import { utils } from "../jsUtils/utils";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
 import Popup from "../Utilities/Popup";
+import Skeleton from "../components/Skeleton";
 
 const Projects = () => {
   const { getISODate, strToDate, prettifyDate } = utils();
@@ -41,6 +42,7 @@ const Projects = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [selectedSortOrder, setSelectedSortOrder] = useState("-1");
+  const [pageLoading, setPageLoading] = useState(true);
   // const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
   const {
     popType,
@@ -54,8 +56,10 @@ const Projects = () => {
   const expandSearchBox = () => {
     setExpanded(true);
   };
+
   useEffect(() => {
     getProjectData(); // fetch data on mount
+    // setPageLoading(false);
   }, []);
   const fetchResults = async (searchText: string) => {
     if (!searchText) {
@@ -131,8 +135,6 @@ const Projects = () => {
   return (
     <>
       <Header isActive="projects" />
-      {loading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
       <div className="cardContainerProject">
         <div className="cardPageContainerTop">
@@ -232,9 +234,15 @@ const Projects = () => {
             </select>
           </div>
         </div>
-
+        {loading && <Skeleton />}
         <div className="cardPageContainerBtm">
-          {projectData.map((item, index) => (
+          {error && (
+            <span>
+              <Icon path={mdiFolderAlert} size={7} />
+              <br></br>No project has been created
+            </span>
+          )}
+          {(projectData.length > 0 ? projectData : []).map((item, index) => (
             <Card
               key={index}
               cardTags={item.card_tags}

@@ -253,8 +253,7 @@ body {
     circle,
     rgba(190, 205, 247, 1) 0%,
     rgba(187, 222, 251, 1) 39%,
-    rgba(255, 255, 255, 1) 100%,
-    rgba(227, 242, 253, 1) 77%
+    rgba(0, 0, 0, 0.1) 100%
   );
 }
 .cardTitle {
@@ -274,6 +273,8 @@ body {
   /* border: var(--outline-border-width) solid var(--gray-md); */
   /* background-repeat: no-repeat;
   background-size: cover; */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   background-color: var(--white);
   position: relative;
   overflow: hidden;
@@ -348,8 +349,7 @@ input:focus {
     circle,
     rgba(190, 205, 247, 1) 0%,
     rgba(187, 222, 251, 1) 39%,
-    rgba(255, 255, 255, 1) 100%,
-    rgba(227, 242, 253, 1) 77%
+    rgba(0, 0, 0, 0.1) 100%
   );
   min-height: 100vh;
 }
@@ -820,4 +820,23 @@ input:focus {
 }
 .hide {
   @apply hidden;
+}
+/* skeleton */
+.skeletonLoaderContainer .cardTagsContainer {
+  @apply py-5 bg-gray-900;
+}
+.skeletonLoaderContainer .cardContainer:hover {
+  transform: translate(0, 0);
+}
+.skeletonLoaderContainer .cardBgImg {
+  @apply bg-gray-400;
+}
+.skeletonLoaderContainer .cardContent {
+  @apply bg-gray-200 pt-20 pb-5;
+}
+.skeletonLoaderContainer .cardActions {
+  @apply py-5 bg-gray-500 rounded-full;
+}
+.skeletonLoaderContainer .cardDateDiv {
+  @apply bg-gray-200;
 }

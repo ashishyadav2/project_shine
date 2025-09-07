@@ -72,8 +72,8 @@ export const SearchBarExtension = ({
               fieldName="From:"
               name="from"
               value={searchReq.date_range.from}
-              min={searchReq.date_range.min_date}
-              max={searchReq.date_range.max_date}
+              // min={searchReq.date_range.min_date}
+              // max={searchReq.date_range.max_date}
               inputFunc={inputChangeHandlers.handleDate}
             />
             <InputField
@@ -81,8 +81,8 @@ export const SearchBarExtension = ({
               fieldName="To:"
               name="to"
               value={searchReq.date_range.to}
-              min={searchReq.date_range.min_date}
-              max={searchReq.date_range.max_date}
+              // min={searchReq.date_range.min_date}
+              // max={searchReq.date_range.max_date}
               inputFunc={inputChangeHandlers.handleDate}
             />
           </div>
