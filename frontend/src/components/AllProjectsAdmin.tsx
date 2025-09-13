@@ -79,13 +79,21 @@ const AllProjectsAdmin = ({
   adminFormVisibleReactState,
 }: AllProjectsAdminProps) => {
   const { getISODate, strToDate, prettifyDate } = utils();
-  const { projectData, loading, error, getProjectData, setProjectData } =
-    useProjectPageData();
+  const {
+    hasMore,
+    setHasMore,
+    projectData,
+    loading,
+    setLoading,
+    error,
+    getProjectData,
+    setProjectData,
+  } = useProjectPageData();
   const { editController, handleDelete, copyControllerLogic } =
     HandleAllProjectsAdmin();
   const [pageLoading, setPageLoading] = useState(true);
   useEffect(() => {
-    getProjectData();
+    getProjectData(false);
   }, []);
 
   const [query, setQuery] = useState("");
@@ -336,7 +344,7 @@ const AllProjectsAdmin = ({
           />
         )}
       </div>
-      {loading && <Skeleton />}
+
       <div className="cardPageContainerBtmAdmin">
         {error && (
           <span>
@@ -416,6 +424,18 @@ const AllProjectsAdmin = ({
             btnFun={resetFormForAddProject}
           />
         </span>
+      </div>
+      {loading && <Skeleton />}
+      <div className="loadMoreContainer">
+        {hasMore && (
+          <ActionButton
+            btnText={"Load more"}
+            btnFun={(e) => {
+              setLoading(true);
+              getProjectData(true);
+            }}
+          />
+        )}
       </div>
       {showDeletePopUP && (
         <div className="confirmDeleteBackdrop">

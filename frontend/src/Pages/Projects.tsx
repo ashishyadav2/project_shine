@@ -34,8 +34,16 @@ const Projects = () => {
   function showHideSearchBar() {
     setIsVisible(!isVisible);
   }
-  const { projectData, loading, error, getProjectData, setProjectData } =
-    useProjectPageData();
+  const {
+    hasMore,
+    setHasMore,
+    projectData,
+    loading,
+    setLoading,
+    error,
+    getProjectData,
+    setProjectData,
+  } = useProjectPageData();
   const [expanded, setExpanded] = useState(false);
 
   // const [showSearchExt, setShowSearchExt] = useState(false);
@@ -58,7 +66,7 @@ const Projects = () => {
   };
 
   useEffect(() => {
-    getProjectData(); // fetch data on mount
+    getProjectData(false); // fetch data on mount
     // setPageLoading(false);
   }, []);
   const fetchResults = async (searchText: string) => {
@@ -234,14 +242,14 @@ const Projects = () => {
             </select>
           </div>
         </div>
-        {loading && <Skeleton />}
+        {/* {loading && <Skeleton />} */}
         <div className="cardPageContainerBtm">
-          {error && (
+          {/* {error && (
             <span>
               <Icon path={mdiFolderAlert} size={7} />
               <br></br>No project has been created
             </span>
-          )}
+          )} */}
           {(projectData.length > 0 ? projectData : []).map((item, index) => (
             <Card
               key={index}
@@ -252,6 +260,17 @@ const Projects = () => {
               fromDate={prettifyDate(item.card_from_date)}
             />
           ))}
+        </div>
+        <div className="loadMoreContainer">
+          {hasMore && (
+            <ActionButton
+              btnText={"Load more"}
+              btnFun={(e) => {
+                setLoading(true);
+                getProjectData(true);
+              }}
+            />
+          )}
         </div>
       </div>
     </>

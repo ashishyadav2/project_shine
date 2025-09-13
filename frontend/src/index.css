@@ -822,6 +822,9 @@ input:focus {
   @apply hidden;
 }
 /* skeleton */
+.skeletonLoaderContainer {
+  @apply m-0 p-0;
+}
 .skeletonLoaderContainer .cardTagsContainer {
   @apply py-5 bg-gray-900;
 }
@@ -839,4 +842,8 @@ input:focus {
 }
 .skeletonLoaderContainer .cardDateDiv {
   @apply bg-gray-200;
+}
+/* load more button */
+.loadMoreContainer {
+  @apply flex justify-center py-10;
 }
