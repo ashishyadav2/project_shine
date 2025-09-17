@@ -847,3 +847,29 @@ input:focus {
 .loadMoreContainer {
   @apply flex justify-center py-10;
 }
+/* login form */
+.loginContainer {
+  @apply w-full flex flex-wrap justify-center items-center h-screen;
+}
+.loginContainer h1 {
+  @apply text-4xl uppercase font-ui text-center pb-10;
+}
+.loginContainer .loignForm {
+  @apply w-full md:w-5/12 bg-white py-10 px-7 rounded-lg flex flex-col flex-wrap justify-center items-center;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+}
+.loginContainer input {
+  @apply rounded-lg pt-2 mt-1;
+  background-color: var(--gray-md-s);
+}
+.loginContainer .inputField {
+  @apply w-full;
+}
+.loginContainer img {
+  @apply rounded-full;
+  width: 30%;
+}
+.loginContainer button {
+  @apply mt-5 w-2/6 float-right;
+}

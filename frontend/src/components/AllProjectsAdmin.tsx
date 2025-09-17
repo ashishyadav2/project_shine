@@ -101,6 +101,9 @@ const AllProjectsAdmin = ({
   const [showDeletePopUP, setShowDeletePopUP] = useState(false);
   const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
   const [showSearchExt, setShowSearchExt] = useState(false);
+  const [loadMoreSearch, setLoadMoreSearch] = useState(true);
+  const [hasMoreSearch, setHasMoreSearch] = useState(true);
+  const [isSearchResultPresnt, setIsSearchResultPresent] = useState(false);
   const [delItem, setDelItem] = useState({
     card_img_id: "",
     card_id: "",
@@ -178,29 +181,59 @@ const AllProjectsAdmin = ({
   const expandSearchBox = () => {
     setExpanded(true);
   };
-  const fetchResultsExt = async (searchReqObj: Object) => {
-    if (!searchReqObj) {
-      return setResults([]);
-    }
+  const fetchResultsExt = async (
+    searchReqObj: Object,
+    loadMoreSearch: boolean = false
+  ) => {
     try {
-      if (!inputChangeHandlers.dataValidation()) {
-        Notify("Invalid date range", "pWarn");
-        return;
+      if (!loadMoreSearch) {
+        if (!searchReqObj) {
+          return setResults([]);
+        }
+        if (!inputChangeHandlers.dataValidation()) {
+          Notify("Invalid date range", "pWarn");
+          return;
+        }
+      }
+      if (loadMoreSearch) {
+        searchReqObj = { loadMore: loadMoreSearch };
       }
       const res = await axios.post(
         `http://localhost:8000/api/search/`,
         searchReqObj
       );
       if (res.status == 200) {
+        console.log(res.data);
+        let hasMoreFlag = res.data.pop();
+        // if (loadMoreSearch) {
+        if (hasMoreFlag === undefined) {
+          hasMoreFlag = { hasMore: false };
+        }
+        setHasMoreSearch(hasMoreFlag["hasMore"]);
+        // }
+        setIsSearchResultPresent(res.data.length > 0);
+        console.log(hasMoreSearch);
+        setProjectData(() => {
+          if (loadMoreSearch) {
+            let prevData = [...projectData];
+            if (prevData.length > 0) {
+              return [...prevData, ...res.data];
+            }
+          }
+          return [...res.data];
+        });
+        setLoading(false);
         setResults(res.data);
-        setProjectData(res.data);
+        // setProjectData(res.data);
       } else {
         Notify("No results found", "pWarn");
         setProjectData([]);
         setResults([]);
+        setLoading(false);
       }
       console.log(res.data);
     } catch (err) {
+      setLoading(false);
       Notify("No results found", "pWarn");
       console.error(err);
     }
@@ -364,6 +397,7 @@ const AllProjectsAdmin = ({
             isEditing={true}
             controller={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
+              console.log(item);
               editController(
                 formReactState,
                 {
@@ -377,7 +411,7 @@ const AllProjectsAdmin = ({
                 imageReactState,
                 item.card_img_url,
                 item.card_img_id,
-                item.card_id,
+                item.card_id || item._id,
                 isEditBtnBool,
                 isEditReactState,
                 selectedFileValue,
@@ -426,17 +460,40 @@ const AllProjectsAdmin = ({
         </span>
       </div>
       {loading && <Skeleton />}
-      <div className="loadMoreContainer">
-        {hasMore && (
-          <ActionButton
-            btnText={"Load more"}
-            btnFun={(e) => {
-              setLoading(true);
-              getProjectData(true);
-            }}
-          />
-        )}
-      </div>
+      {!isSearchResultPresnt ? (
+        <div className="loadMoreContainer">
+          {hasMore && (
+            <ActionButton
+              btnText={"Load more"}
+              btnFun={(e) => {
+                setLoading(true);
+                getProjectData(true);
+              }}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="loadMoreContainer">
+          {hasMoreSearch && (
+            <ActionButton
+              btnText={"Show more results"}
+              btnFun={(e) => {
+                setLoading(true);
+                fetchResultsExt({}, true);
+              }}
+            />
+          )}
+        </div>
+      )}
+      {/* <div className="loadMoreContainer">
+        <ActionButton
+          btnText={"Load more search"}
+          btnFun={(e) => {
+            setLoading(true);
+            fetchResultsExt({}, true);
+          }}
+        />
+      </div> */}
       {showDeletePopUP && (
         <div className="confirmDeleteBackdrop">
           <div className="confirmDeleteContainer">
