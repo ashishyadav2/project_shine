@@ -17,8 +17,8 @@ class DBConnect:
         
     def get_collection(self,collection_name: str = None): 
         if collection_name is None:
-            collection_name = os.getenv("DB_TABLE")
-        self.collection = self.db[collection_name]
+            collection_name = "DB_TABLE"
+        self.collection = self.db[os.getenv(collection_name)]
         return self.collection
     
     def get_grid_fs(self):
