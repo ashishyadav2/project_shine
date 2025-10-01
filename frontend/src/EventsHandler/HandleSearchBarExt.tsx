@@ -12,9 +12,9 @@ export const useSearchBarExt = () => {
     },
     date_range: {
       from: new Date(2019, 0, 2).toISOString().split("T")[0],
-      to: new Date().toISOString().split("T")[0],
+      to: new Date(2100, 0, 2).toISOString().split("T")[0],
       min_date: new Date(2019, 0, 2).toISOString().split("T")[0],
-      max_date: new Date().toISOString().split("T")[0],
+      max_date: new Date(2100, 0, 2).toISOString().split("T")[0],
     },
     sort: -1,
     tags: [] as string[],

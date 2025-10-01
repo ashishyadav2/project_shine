@@ -855,13 +855,17 @@ input:focus {
   @apply text-4xl uppercase font-ui text-center pb-10;
 }
 .loginContainer .loignForm {
-  @apply w-full md:w-5/12 bg-white py-10 px-7 rounded-lg flex flex-col flex-wrap justify-center items-center;
+  @apply w-full md:w-3/12 bg-white py-10 px-7 rounded-lg flex flex-col flex-wrap justify-center items-center;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 }
 .loginContainer input {
   @apply rounded-lg pt-2 mt-1;
   background-color: var(--gray-md-s);
+  border: 2px solid var(--gray-md-s);
+}
+.loginContainer input:focus {
+  border: 2px solid var(--accent-color);
 }
 .loginContainer .inputField {
   @apply w-full;

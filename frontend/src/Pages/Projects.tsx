@@ -37,6 +37,8 @@ const Projects = () => {
   const {
     hasMore,
     setHasMore,
+    currOffset,
+    setCurrOffset,
     projectData,
     loading,
     setLoading,
@@ -51,6 +53,8 @@ const Projects = () => {
   const [results, setResults] = useState<any[]>([]);
   const [selectedSortOrder, setSelectedSortOrder] = useState("-1");
   const [pageLoading, setPageLoading] = useState(true);
+  const [hasMoreSearch, setHasMoreSearch] = useState(true);
+  const [isSearchResultPresnt, setIsSearchResultPresent] = useState(false);
   // const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
   const {
     popType,
@@ -65,21 +69,47 @@ const Projects = () => {
     setExpanded(true);
   };
 
-  useEffect(() => {
-    getProjectData(false); // fetch data on mount
-    // setPageLoading(false);
-  }, []);
-  const fetchResults = async (searchText: string) => {
+  // useEffect(() => {
+  //   getProjectData(false, selectedSortOrder); // fetch data on mount
+  //   // setPageLoading(false);
+  // }, []);
+  const fetchResults = async (
+    searchText: string,
+    sortOrder: string,
+    st: Number = 0,
+    loadMore: boolean = false
+  ) => {
     if (!searchText) {
       return setResults([]);
     }
+
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/search/?q=${searchText}/`
+        `http://localhost:8000/api/search/?q=${searchText}&sort=${sortOrder}&st=${st}&loadMore=${loadMore}&/`
       );
       if (res.status == 200) {
+        let currOffsett = res.data.pop();
+        let hasMoreFlag = res.data.pop();
+        // if (loadMoreSearch) {
+        if (hasMoreFlag === undefined) {
+          hasMoreFlag = { hasMore: false };
+        }
+        if (currOffsett === undefined) {
+          currOffsett = { curr_offset: 0 };
+        }
+        setHasMoreSearch(hasMoreFlag["hasMore"]);
+        setCurrOffset(currOffsett["curr_offset"]);
         setResults(res.data);
-        setProjectData(res.data);
+        setIsSearchResultPresent(res.data.length > 0);
+        setProjectData(() => {
+          if (loadMore) {
+            let prevData = [...projectData];
+            if (prevData.length > 0) {
+              return [...prevData, ...res.data];
+            }
+          }
+          return [...res.data];
+        });
       } else {
         Notify("No results found", "pWarn");
         setResults([]);
@@ -90,10 +120,15 @@ const Projects = () => {
       Notify("No results found", "pWarn");
       console.error(err);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (!selectedSortOrder) return;
-    sortFilter(selectedSortOrder);
+    if (query.length > 0) {
+      fetchResults(query, selectedSortOrder, 0, false);
+    } else {
+      getProjectData(false, selectedSortOrder);
+    }
   }, [selectedSortOrder]);
   const sortFilter = async (sortOrder: string) => {
     try {
@@ -103,6 +138,8 @@ const Projects = () => {
       if (res.status == 200) {
         setResults(res.data);
         setProjectData(res.data);
+        console.log(res.data);
+        console.log(projectData);
       } else {
         Notify("No results found", "pWarn");
         setProjectData([]);
@@ -206,7 +243,7 @@ const Projects = () => {
                 btnText={<FontAwesomeIcon icon={faArrowRight} />}
                 btnType={"active"}
                 btnFun={() => {
-                  fetchResults(query);
+                  fetchResults(query, selectedSortOrder, 0, false);
                   // fetchResultsExt(searchReq);
                 }}
               />
@@ -242,14 +279,14 @@ const Projects = () => {
             </select>
           </div>
         </div>
-        {/* {loading && <Skeleton />} */}
+
         <div className="cardPageContainerBtm">
-          {/* {error && (
+          {error && (
             <span>
               <Icon path={mdiFolderAlert} size={7} />
               <br></br>No project has been created
             </span>
-          )} */}
+          )}
           {(projectData.length > 0 ? projectData : []).map((item, index) => (
             <Card
               key={index}
@@ -261,17 +298,34 @@ const Projects = () => {
             />
           ))}
         </div>
-        <div className="loadMoreContainer">
-          {hasMore && (
-            <ActionButton
-              btnText={"Load more"}
-              btnFun={(e) => {
-                setLoading(true);
-                getProjectData(true);
-              }}
-            />
-          )}
-        </div>
+        {loading && <Skeleton />}
+        {!isSearchResultPresnt ? (
+          <div className="loadMoreContainer">
+            {hasMore && (
+              <ActionButton
+                btnText={"Load more"}
+                btnFun={(e) => {
+                  setLoading(true);
+                  let newOffset = Number(currOffset);
+                  getProjectData(true, "-1", newOffset.toString());
+                }}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="loadMoreContainer">
+            {hasMoreSearch && (
+              <ActionButton
+                btnText={"Show more results"}
+                btnFun={(e) => {
+                  setLoading(true);
+                  let newOffset = Number(currOffset);
+                  fetchResults(query, selectedSortOrder, newOffset, true);
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     </>
   );

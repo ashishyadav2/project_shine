@@ -82,6 +82,8 @@ const AllProjectsAdmin = ({
   const {
     hasMore,
     setHasMore,
+    currOffset,
+    setCurrOffset,
     projectData,
     loading,
     setLoading,
@@ -183,7 +185,8 @@ const AllProjectsAdmin = ({
   };
   const fetchResultsExt = async (
     searchReqObj: Object,
-    loadMoreSearch: boolean = false
+    loadMoreSearch: boolean = false,
+    startIndex: Number = 0
   ) => {
     try {
       if (!loadMoreSearch) {
@@ -196,7 +199,11 @@ const AllProjectsAdmin = ({
         }
       }
       if (loadMoreSearch) {
-        searchReqObj = { loadMore: loadMoreSearch };
+        searchReqObj = {
+          ...searchReqObj,
+          loadMore: loadMoreSearch,
+          st: startIndex,
+        };
       }
       const res = await axios.post(
         `http://localhost:8000/api/search/`,
@@ -204,12 +211,17 @@ const AllProjectsAdmin = ({
       );
       if (res.status == 200) {
         console.log(res.data);
+        let currOffsett = res.data.pop();
         let hasMoreFlag = res.data.pop();
         // if (loadMoreSearch) {
         if (hasMoreFlag === undefined) {
           hasMoreFlag = { hasMore: false };
         }
+        if (currOffsett === undefined) {
+          currOffsett = { curr_offset: 0 };
+        }
         setHasMoreSearch(hasMoreFlag["hasMore"]);
+        setCurrOffset(currOffsett["curr_offset"]);
         // }
         setIsSearchResultPresent(res.data.length > 0);
         console.log(hasMoreSearch);
@@ -230,9 +242,11 @@ const AllProjectsAdmin = ({
         setProjectData([]);
         setResults([]);
         setLoading(false);
+        setHasMoreSearch(false);
       }
       console.log(res.data);
     } catch (err) {
+      setHasMoreSearch(false);
       setLoading(false);
       Notify("No results found", "pWarn");
       console.error(err);
@@ -459,7 +473,7 @@ const AllProjectsAdmin = ({
           />
         </span>
       </div>
-      {loading && <Skeleton />}
+      {loading && <Skeleton isAdmin={true} />}
       {!isSearchResultPresnt ? (
         <div className="loadMoreContainer">
           {hasMore && (
@@ -467,7 +481,8 @@ const AllProjectsAdmin = ({
               btnText={"Load more"}
               btnFun={(e) => {
                 setLoading(true);
-                getProjectData(true);
+                let newOffset = Number(currOffset);
+                getProjectData(true, "-1", newOffset.toString());
               }}
             />
           )}
@@ -479,7 +494,8 @@ const AllProjectsAdmin = ({
               btnText={"Show more results"}
               btnFun={(e) => {
                 setLoading(true);
-                fetchResultsExt({}, true);
+                let newOffset = Number(currOffset);
+                fetchResultsExt(searchReq, true, newOffset);
               }}
             />
           )}

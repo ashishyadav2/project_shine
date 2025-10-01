@@ -7,22 +7,35 @@ export const useProjectPageData = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [currOffset, setCurrOffset] = useState(0);
 
-  const getProjectData = (loadMore: boolean = true) => {
+  const getProjectData = (
+    loadMore: boolean = true,
+    sortOrder: string = "-1",
+    startIndex: string = "0"
+  ) => {
     setLoading(true);
     axios
-      .get(`http://localhost:8000/api/view_create_post/?loadMore=${loadMore}`)
+      .get(
+        `http://localhost:8000/api/view_create_post/?loadMore=${loadMore}&sortOrder=${sortOrder}&st=${startIndex}`
+      )
       .then((response) => {
         console.log(response.data);
+        let currOffsett = response.data.pop();
         let hasMoreFlag = response.data.pop();
         if (hasMoreFlag === undefined) {
           hasMoreFlag = { hasMore: false };
         }
+        if (currOffsett === undefined) {
+          currOffsett = { curr_offset: 0 };
+        }
         console.log(hasMoreFlag);
+        console.log(currOffsett);
         setHasMore(hasMoreFlag["hasMore"]);
+        setCurrOffset(currOffsett["curr_offset"]);
         setProjectData(() => {
           let prevData = [...projectData];
-          if (prevData.length > 0 || loadMore) {
+          if (loadMore) {
             return [...prevData, ...response.data];
           }
           return [...response.data];
@@ -30,6 +43,7 @@ export const useProjectPageData = () => {
         setError(false);
       })
       .catch((err) => {
+        setHasMore(false);
         console.error(err);
         setProjectData([]);
         setError(true);
@@ -42,6 +56,8 @@ export const useProjectPageData = () => {
   return {
     hasMore,
     setHasMore,
+    currOffset,
+    setCurrOffset,
     projectData,
     loading,
     setLoading,

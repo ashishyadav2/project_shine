@@ -1,10 +1,13 @@
 import { range } from "lodash";
 import React from "react";
-
-const Skeleton = () => {
+interface SkeletonProps {
+  isAdmin?: boolean;
+}
+const Skeleton = ({ isAdmin = false }: SkeletonProps) => {
   const skeletonArray = range(1, 7);
+  const cls = isAdmin ? "cardPageContainerBtmAdmin" : "cardPageContainerBtm";
   return (
-    <div className="skeletonLoaderContainer cardPageContainerBtmAdmin cardPageContainerBtm animate-pulse">
+    <div className={`skeletonLoaderContainer ${cls} animate-pulse`}>
       {skeletonArray.map((index) => (
         <div className="cardContainer" key={index}>
           <div className="cardBgImg">
