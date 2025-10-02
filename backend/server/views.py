@@ -14,6 +14,11 @@ from pymongo import MongoClient, UpdateOne
 import gridfs
 from io import BytesIO
 from bson import ObjectId
+from rest_framework.permissions import IsAdminUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 from server.db_con_util.db_conn_class import DBConnect
 # from server.Logger.logger_util import logging
 from dotenv import load_dotenv
@@ -89,6 +94,20 @@ class OffsetManagement:
         OffsetManagement.prev_offset = 0
         OffsetManagement.hasMore = True
     
+class CookieJWTAuthentication(JWTAuthentication):
+    def authenticate(self, request):
+        raw_token = request.COOKIES.get("access_token")
+        if not raw_token:
+            return None
+        
+        try:
+            validated_token = self.get_validated_token(raw_token)
+            user = self.get_user(validated_token)
+            return (user, validated_token)
+        except Exception:
+            return None
+
+    
 class ReactView(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection()
@@ -98,16 +117,25 @@ class ReactView(APIView):
     img_util = ImageUtilities()
     cards_on_each_page = 6
     doc_count = collection.count_documents({})
-    page_counter = doc_count//cards_on_each_page
-    prev_offset = 0
-    hasMore = True
-    start_index = 0
-    end_index = start_index + cards_on_each_page
     
+    authentication_classes = [CookieJWTAuthentication]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []  
+        return [IsAuthenticated()]
     
     def get(self, request):
         output = []
         try:
+            # user = request.user
+            # isAdmin = user.is_superuser  # or user.is_superuser
+            user = None
+            if request.user.is_authenticated:
+                user = request.user
+                isAdmin = user.is_superuser
+            else:
+                isAdmin = False  # treat anonymous as non-admin
+            print(user,isAdmin)
             req_obj = request.GET.dict()
             loadMore = req_obj.get("loadMore",False)
             sort_order = int(req_obj.get("sortOrder","-1"))
@@ -115,8 +143,11 @@ class ReactView(APIView):
             if sort_order not in [1,-1]:
                 STATUS_CODE = 400
                 return Response({"message":"Invalid sort order"},status=STATUS_CODE)
-            loadMore = json.loads(loadMore.lower()) #imp converting string to boolean
             print(req_obj)
+            try:
+                loadMore = json.loads(loadMore.lower()) #imp converting string to boolean
+            except Exception as exp:
+                print(exp)
             curr_offset = 0 
             if loadMore:
                 curr_offset = start_index + ReactView.cards_on_each_page
@@ -124,7 +155,6 @@ class ReactView(APIView):
                 start_index = 0
             time.sleep(0.5)
             STATUS_CODE = 200
-            isAdmin = False
             min_date = datetime(2019,1,1)
             max_date = datetime.now()
             search_query = {"card_from_date": {
@@ -162,9 +192,7 @@ class ReactView(APIView):
         except Exception as e:
             STATUS_CODE = 500
             print(e)
-            
         return Response(output,status=STATUS_CODE)
-        
         
     def __random_id(self,size=5):
         id = "".join([str(random.randint(1,9)) for _ in range(5)])
@@ -358,6 +386,11 @@ class RealTimeSearchView(APIView):
     gfs = db_obj.get_grid_fs()
     offset_mgmt = OffsetManagement(collection,6)
     cards_on_each_page = 6
+    authentication_classes = [CookieJWTAuthentication]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []  
+        return [IsAuthenticated()]
     
     def _create_response(self,results,hasMore,curr_offset=0):
         if not results:
@@ -575,6 +608,11 @@ class ImageUploadView(APIView):
     gfs = db_obj.get_grid_fs()
     img_util = ImageUtilities()
     flag = True
+    authentication_classes = [CookieJWTAuthentication]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []  
+        return [IsAuthenticated()]
     def get(self, request, image_id):
         try:
             file = self.gfs.get(ObjectId(image_id))
@@ -602,6 +640,8 @@ class ImageUploadView(APIView):
 class GetTags(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection(collection_name="TAGS_TABLE")
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self,request):
         # to get tags along with their counts
         # db_results = list(self.collection.find({},{"tag_name": 1,"_id":0,"cards_linked": 1}))
@@ -610,11 +650,45 @@ class GetTags(APIView):
         results = {obj["tag_name"]: True for obj in db_results}
         return Response(results.keys())
     
-class AdminMgmt(APIView):
-    def __init__(self):
-        pass
+class LogoutView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+
+    def post(self, request):
+        response = Response({"message": "Logged out"})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+        
+        if user:
+            refresh = RefreshToken.for_user(user)
+            response = Response({"message": "Login successful"})
+            response.set_cookie(
+                key='access_token',
+                value=str(refresh.access_token),
+                httponly=True,
+                secure=False,      
+                samesite='Strict', 
+                path="/",    
+            )
+            response.set_cookie(
+                key='refresh_token',
+                value=str(refresh),
+                httponly=True,
+                secure=False, 
+                samesite='Strict',
+            )
+            return response
+        return Response({"error": "Invalid credentials1"}, status=401)
     
-    def post(self,request):
-        pass
-    def isValidUser(self):
-        return True
+class CheckAuthView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": "Authenticated"})
