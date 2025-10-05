@@ -25,6 +25,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_IMG_URL = f'{os.getenv("HOST_NAME_REACT")}/src/assets/image_placeholder.jpg'
+CARDS_PER_PAGE = 6
 class ImageUtilities:
     def __init__(self):
         pass
@@ -56,50 +57,11 @@ class ImageUtilities:
             print(e)
         return None
     
-class OffsetManagement:
-    collection = None
-    cards_on_each_page = 0
-    doc_count = 0
-    page_counter = 0
-    prev_offset = 0
-    hasMore = True
-    def __init__(self,collection,cards_on_each_page):
-        OffsetManagement.collection = collection
-        OffsetManagement.cards_on_each_page = cards_on_each_page
-        OffsetManagement.hasMore = True
-        OffsetManagement.doc_count = collection.count_documents({})
-        OffsetManagement.page_counter = OffsetManagement.doc_count//cards_on_each_page
-    
-    def get_offset(self,request):
-        loadMore = request.data.get("loadMore",False)
-        print(request.data)
-        curr_offset = 0
-        if loadMore:
-            curr_offset = self.prev_offset + self.cards_on_each_page
-            if not(curr_offset>= self.doc_count):
-                self.prev_offset = curr_offset
-            self.page_counter -=1
-        else:
-            self.page_counter = self.doc_count//self.cards_on_each_page
-            self.prev_offset = 0
-            curr_offset = 0
-        self.hasMore = False if self.page_counter<=1 else True
-        return (curr_offset,self.hasMore)
-    
-    def reset_class():
-        OffsetManagement.collection = None
-        OffsetManagement.cards_on_each_page = 0
-        OffsetManagement.doc_count = 0
-        OffsetManagement.page_counter = 0
-        OffsetManagement.prev_offset = 0
-        OffsetManagement.hasMore = True
-    
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         raw_token = request.COOKIES.get("access_token")
         if not raw_token:
             return None
-        
         try:
             validated_token = self.get_validated_token(raw_token)
             user = self.get_user(validated_token)
@@ -114,8 +76,6 @@ class ReactView(APIView):
     gfs = db_obj.get_grid_fs()
     grid_bucket = db_obj.get_grid_bucket()
     img_util = ImageUtilities()
-    cards_on_each_page = 6
-    # doc_count = collection.count_documents({})
     
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
@@ -126,14 +86,12 @@ class ReactView(APIView):
     def get(self, request):
         output = []
         try:
-            # user = request.user
-            # isAdmin = user.is_superuser  # or user.is_superuser
             user = None
             if request.user.is_authenticated:
                 user = request.user
                 isAdmin = user.is_superuser
             else:
-                isAdmin = False  # treat anonymous as non-admin
+                isAdmin = False  # treats anonymous as non-admin
             print(user,isAdmin)
             req_obj = request.GET.dict()
             loadMore = req_obj.get("loadMore",False)
@@ -149,7 +107,7 @@ class ReactView(APIView):
                 print(exp)
             curr_offset = 0 
             if loadMore:
-                curr_offset = start_index + ReactView.cards_on_each_page
+                curr_offset = start_index + CARDS_PER_PAGE
             else:
                 start_index = 0
             time.sleep(0.5)
@@ -165,7 +123,7 @@ class ReactView(APIView):
                 search_query = {}                
             all_documents = self.collection.find(search_query).sort([("card_from_date", int(sort_order)), ("_id", int(sort_order))])
             total_doc_count = all_documents.count()            
-            all_documents = all_documents.skip(curr_offset).limit(ReactView.cards_on_each_page)
+            all_documents = all_documents.skip(curr_offset).limit(CARDS_PER_PAGE)
             cursor_slice_count = all_documents.count(with_limit_and_skip=True)
             print(cursor_slice_count)
             hasMore =  (curr_offset+cursor_slice_count)< total_doc_count
@@ -351,40 +309,45 @@ class ReactView(APIView):
         return Response(response_obj,status=response_obj.get("status"))
     
     def __insert_tag_helper(self,form_id,tags):
-        # insert into tags collection
-        bulk_upsert_query = []
-        for tag_name in tags:
-            bulk_upsert_query.append(
-                UpdateOne(
-                    {"tag_name":tag_name},
-                    {
-                        "$set" : {
-                            "modified_date": datetime.now()
+        try:
+            # insert into tags collection
+            bulk_upsert_query = []
+            for tag_name in tags:
+                bulk_upsert_query.append(
+                    UpdateOne(
+                        {"tag_name":tag_name},
+                        {
+                            "$set" : {
+                                "modified_date": datetime.now()
+                            },
+                            "$addToSet": {
+                                "cards_linked" : ObjectId(form_id)
+                            }
                         },
-                        "$addToSet": {
-                            "cards_linked" : ObjectId(form_id)
-                        }
-                    },
-                    upsert=True
+                        upsert=True
+                    )
                 )
-            )
-        # print(bulk_upsert_query)
-        self.tag_collection.bulk_write(bulk_upsert_query)
+            # print(bulk_upsert_query)
+            self.tag_collection.bulk_write(bulk_upsert_query)
+            
+        except Exception as e:
+            print(e)
         
     def __delete_tag_helper(self,post_id,tag_names):
-        for tag_name in tag_names:
-            #delete from cards_linked array
-            self.tag_collection.update_one({"tag_name":tag_name},{"$pull": {"cards_linked": ObjectId(post_id)}})
-            #delete the tag name if length is zero
-            self.tag_collection.delete_one({"cards_linked": {"$size": 0}})
+        try:
+            for tag_name in tag_names:
+                #delete from cards_linked array
+                self.tag_collection.update_one({"tag_name":tag_name},{"$pull": {"cards_linked": ObjectId(post_id)}})
+                #delete the tag name if length is zero
+                self.tag_collection.delete_one({"cards_linked": {"$size": 0}})
+        except Exception as e:
+            print(e)
       
 class RealTimeSearchView(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection()
     tags_collection = db_obj.get_collection(collection_name="TAGS_TABLE")
     gfs = db_obj.get_grid_fs()
-    offset_mgmt = OffsetManagement(collection,6)
-    cards_on_each_page = 6
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -392,15 +355,18 @@ class RealTimeSearchView(APIView):
         return [IsAuthenticated()]
     
     def _create_response(self,results,hasMore,curr_offset=0):
-        if not results:
-            return {"message":"No results found"}
-        
-        for item in results:
-            item["_id"] = str(item["_id"])           
-            item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
-        results.append({"hasMore":hasMore})
-        results.append({"curr_offset": curr_offset})
-        # print(results)
+        try:
+            if not results:
+                return {"message":"No results found"}
+            
+            for item in results:
+                item["_id"] = str(item["_id"])           
+                item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
+            results.append({"hasMore":hasMore})
+            results.append({"curr_offset": curr_offset})
+            # print(results)
+        except Exception as e:
+            print(e)
         return results
     
     def get(self,request):            
@@ -436,7 +402,7 @@ class RealTimeSearchView(APIView):
             }
             curr_offset = 0 
             if loadMore:
-                curr_offset = start_index + RealTimeSearchView.cards_on_each_page
+                curr_offset = start_index + CARDS_PER_PAGE
             else:
                 start_index = 0
             search_query = {
@@ -444,11 +410,11 @@ class RealTimeSearchView(APIView):
                 
             }
             if sort_order:
-                results_cursor = self.collection.find(search_query).sort([("card_from_date", int(sort_order)), ("_id", int(sort_order))]).skip(curr_offset).limit(RealTimeSearchView.cards_on_each_page)
+                results_cursor = self.collection.find(search_query).sort([("card_from_date", int(sort_order)), ("_id", int(sort_order))]).skip(curr_offset).limit(CARDS_PER_PAGE)
             else:
                 if not query:
                     return Response([],status=404)
-                results_cursor = self.collection.find(search_query).skip(curr_offset).limit(RealTimeSearchView.cards_on_each_page)
+                results_cursor = self.collection.find(search_query).skip(curr_offset).limit(CARDS_PER_PAGE)
             if not results_cursor:
                 STATUS_CODE=404
             print(search_query)
@@ -466,8 +432,6 @@ class RealTimeSearchView(APIView):
     
     def post(self,request):
         STATUS_CODE = 200
-        curr_offset,hasMore = RealTimeSearchView.offset_mgmt.get_offset(request)
-        print(f"curr offset: {curr_offset}, hasMore: {hasMore}")
         results = []
         final_search_query = {}
         sort_order = -1
@@ -572,7 +536,7 @@ class RealTimeSearchView(APIView):
             
             curr_offset = 0 
             if loadMore:
-                curr_offset = start_index + RealTimeSearchView.cards_on_each_page
+                curr_offset = start_index + CARDS_PER_PAGE
             else:
                 start_index = 0
             time.sleep(0.5)
@@ -580,7 +544,7 @@ class RealTimeSearchView(APIView):
             
             total_results_count = results_cursor.count()
             
-            results_cursor = results_cursor.skip(curr_offset).limit(RealTimeSearchView.cards_on_each_page)
+            results_cursor = results_cursor.skip(curr_offset).limit(CARDS_PER_PAGE)
             
             results = list(results_cursor)
             # print(results)
@@ -642,47 +606,57 @@ class GetTags(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
     def get(self,request):
-        # to get tags along with their counts
-        # db_results = list(self.collection.find({},{"tag_name": 1,"_id":0,"cards_linked": 1}))
-        # results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
-        db_results = list(self.collection.find({},{"tag_name": 1,"_id":0}))
-        results = {obj["tag_name"]: True for obj in db_results}
+        results = None
+        try:
+            # to get tags along with their counts
+            # db_results = list(self.collection.find({},{"tag_name": 1,"_id":0,"cards_linked": 1}))
+            # results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
+            db_results = list(self.collection.find({},{"tag_name": 1,"_id":0}))
+            results = {obj["tag_name"]: True for obj in db_results}
+        except Exception as e:
+            print(e)
         return Response(results.keys())
     
 class LogoutView(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def post(self, request):
-        response = Response({"message": "Logged out"})
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
+        try:
+            response = Response({"message": "Logged out"})
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+        except Exception as e:
+            print(e)
         return response
 
 class LoginView(APIView):
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-        
-        if user:
-            refresh = RefreshToken.for_user(user)
-            response = Response({"message": "Login successful"})
-            response.set_cookie(
-                key='access_token',
-                value=str(refresh.access_token),
-                httponly=True,
-                secure=False,      
-                samesite='Strict', 
-                path="/",    
-            )
-            response.set_cookie(
-                key='refresh_token',
-                value=str(refresh),
-                httponly=True,
-                secure=False, 
-                samesite='Strict',
-            )
-            return response
+        try:
+            username = request.data.get("username")
+            password = request.data.get("password")
+            user = authenticate(username=username, password=password)
+            
+            if user:
+                refresh = RefreshToken.for_user(user)
+                response = Response({"message": "Login successful"})
+                response.set_cookie(
+                    key='access_token',
+                    value=str(refresh.access_token),
+                    httponly=True,
+                    secure=False,      
+                    samesite='Strict', 
+                    path="/",    
+                )
+                response.set_cookie(
+                    key='refresh_token',
+                    value=str(refresh),
+                    httponly=True,
+                    secure=False, 
+                    samesite='Strict',
+                )
+                return response
+        except Exception as e:
+            print(e)
         return Response({"error": "Invalid credentials1"}, status=401)
     
 class CheckAuthView(APIView):

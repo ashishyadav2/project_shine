@@ -207,7 +207,8 @@ const AllProjectsAdmin = ({
       }
       const res = await axios.post(
         `http://localhost:8000/api/search/`,
-        searchReqObj
+        searchReqObj,
+        { withCredentials: true }
       );
       if (res.status == 200) {
         console.log(res.data);
