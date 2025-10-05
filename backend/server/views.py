@@ -106,8 +106,7 @@ class CookieJWTAuthentication(JWTAuthentication):
             return (user, validated_token)
         except Exception:
             return None
-
-    
+   
 class ReactView(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection()
@@ -116,7 +115,7 @@ class ReactView(APIView):
     grid_bucket = db_obj.get_grid_bucket()
     img_util = ImageUtilities()
     cards_on_each_page = 6
-    doc_count = collection.count_documents({})
+    # doc_count = collection.count_documents({})
     
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
@@ -171,7 +170,7 @@ class ReactView(APIView):
             print(cursor_slice_count)
             hasMore =  (curr_offset+cursor_slice_count)< total_doc_count
             print(f"curr_offset: {curr_offset}")
-            if ReactView.doc_count<1:
+            if total_doc_count<1:
                 STATUS_CODE=411
                 output.append({"message":"No records found"})
             for doc in all_documents:

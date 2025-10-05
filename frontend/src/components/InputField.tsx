@@ -7,6 +7,8 @@ interface InputFieldProps {
   name?: string;
   enabled?: boolean;
   inputFunc?: ChangeEventHandler<HTMLInputElement>;
+  onFocus?: ChangeEventHandler<HTMLInputElement>;
+  onBlur?: ChangeEventHandler<HTMLInputElement>;
   value?: string | string[];
   accept?: string;
   min?: string;
@@ -24,6 +26,8 @@ const InputField = ({
   accept,
   min,
   max,
+  onFocus,
+  onBlur,
 }: InputFieldProps) => {
   return (
     <div className="inputField">
@@ -40,6 +44,8 @@ const InputField = ({
         title={fieldName}
         min={min}
         max={max}
+        onFocus={onFocus}
+        onBlur={onBlur}
       ></input>
     </div>
   );

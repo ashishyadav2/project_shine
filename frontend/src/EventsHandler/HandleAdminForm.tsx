@@ -73,7 +73,8 @@ export const useAdminFormHandler = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/image/upload/",
-        partialFormData
+        partialFormData,
+        { withCredentials: true }
       );
       console.log(response, "Image upload success");
       Notify("Image uploaded successfully", "pSuccess");
@@ -155,7 +156,8 @@ export const useAdminFormHandler = () => {
             console.log(`form_data with image: ${formData}`);
             const response = await axios.patch(
               `http://localhost:8000/api/update_post/${formId}/`,
-              formData
+              formData,
+              { withCredentials: true }
             );
             console.log(response.data, "data updated");
             Notify("Image has been updated", "pSuccess");
@@ -172,7 +174,8 @@ export const useAdminFormHandler = () => {
           // formData.from_date = `${strToDate(formData.from_date)}`;
           const response = await axios.patch(
             `http://localhost:8000/api/update_post/${formId}/`,
-            formData
+            formData,
+            { withCredentials: true }
           );
           console.log("Edit mode", formData);
           console.log(response.data, "data updated");

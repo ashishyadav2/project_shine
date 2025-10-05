@@ -54,6 +54,7 @@ export const HandleAllProjectsAdmin = () => {
             card_id,
             card_tags,
           },
+          withCredentials: true,
         }
       );
       console.log(response.data, "data deleted");
@@ -79,7 +80,8 @@ export const HandleAllProjectsAdmin = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/view_create_post/",
-        formDataValue
+        formDataValue,
+        { withCredentials: true }
       );
       console.log(response, "Copy created");
       Notify("Copy Created", "pSuccess");

@@ -17,7 +17,8 @@ export const useProjectPageData = () => {
     setLoading(true);
     axios
       .get(
-        `http://localhost:8000/api/view_create_post/?loadMore=${loadMore}&sortOrder=${sortOrder}&st=${startIndex}`
+        `http://localhost:8000/api/view_create_post/?loadMore=${loadMore}&sortOrder=${sortOrder}&st=${startIndex}`,
+        { withCredentials: true }
       )
       .then((response) => {
         console.log(response.data);

@@ -151,6 +151,7 @@
     rgba(227, 242, 253, 1) 77%
   );
   @apply w-full h-full;
+  min-height: 100vh;
 }
 body {
   background: url("./assets/bg.png");
@@ -855,7 +856,7 @@ input:focus {
   @apply text-4xl uppercase font-ui text-center pb-10;
 }
 .loginContainer .loignForm {
-  @apply w-full md:w-3/12 bg-white py-10 px-7 rounded-lg flex flex-col flex-wrap justify-center items-center;
+  @apply w-11/12 md:w-5/12 lg:w-3/12 bg-white py-10 px-7 rounded-lg flex flex-col flex-wrap justify-center items-center;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 }
@@ -876,4 +877,56 @@ input:focus {
 }
 .loginContainer button {
   @apply mt-5 w-2/6 float-right;
+}
+.passwordContainer {
+  @apply flex justify-between items-center w-full;
+}
+.passwordContainer input {
+  border-radius: 0.7rem 0 0 0.7rem;
+  border-right: none;
+}
+.passwordContainer input:focus {
+  border-right: none;
+}
+
+.passwordContainer button {
+  @apply rounded-none py-1.5 px-0 mt-7 w-2/12;
+  border-radius: 0 0.5rem 0.5rem 0;
+  border: 2px solid var(--gray-md-s);
+  background-color: var(--gray-md-s);
+  @apply flex justify-center items-center;
+  line-height: normal;
+  border-left: none;
+}
+.passwordContainer button:hover {
+  @apply text-black;
+  background-color: var(--gray-md-s);
+  box-shadow: none;
+}
+.passwordContainerButtonFocused button {
+  @apply rounded-none py-1.5 px-1 mt-7 w-2/12;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background-color: var(--gray-md-s);
+  @apply flex justify-center items-center;
+  line-height: normal;
+  border: 2px solid var(--accent-color);
+  border-left: none;
+}
+/* logout div */
+.logoutDiv {
+  @apply fixed right-20 top-10;
+}
+.logoutDiv button:hover {
+  background-color: var(--error);
+  box-shadow: var(--error) 0px 10px 15px -5px;
+}
+/* 404 not found page  */
+.notFoundPage {
+  @apply bg-black w-full h-screen flex justify-center items-center;
+}
+.loader {
+  @apply w-full h-screen flex justify-center items-center;
+}
+.notFoundPage img {
+  @apply w-2/12;
 }

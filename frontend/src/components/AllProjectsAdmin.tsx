@@ -252,6 +252,20 @@ const AllProjectsAdmin = ({
       console.error(err);
     }
   };
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/logout/",
+        {},
+        { withCredentials: true }
+      );
+      if (res.status == 200) {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      window.location.href = "/login";
+    }
+  };
   return (
     <>
       <Popup msg={popupMsg} popupType={popType} visible={pShowHide} />
@@ -311,6 +325,9 @@ const AllProjectsAdmin = ({
         </div>
         <div className="searchCategories"></div>
       </div> */}
+      <div className="logoutDiv">
+        <ActionButton btnText={"Logout"} btnFun={handleLogout} />
+      </div>
       <div className="adminHeaders">
         <p>Admin Panel</p>
       </div>

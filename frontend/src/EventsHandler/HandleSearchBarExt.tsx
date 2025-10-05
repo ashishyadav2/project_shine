@@ -24,7 +24,8 @@ export const useSearchBarExt = () => {
     const fetchTags = async () => {
       try {
         const res = await axios.get<string[]>(
-          `${import.meta.env.VITE_BACKEND_URL}/api/get_tags/`
+          `${import.meta.env.VITE_BACKEND_URL}/api/get_tags/`,
+          { withCredentials: true }
         );
         setTags(res.data);
         console.log(res.data);
