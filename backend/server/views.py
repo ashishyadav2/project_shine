@@ -1,28 +1,32 @@
-from datetime import datetime, date
+import os
+import re
+import time
 import json
 import random
+from io import BytesIO
+from datetime import datetime, date
+
 from PIL import Image
-import time
-import re
-from django.http import Http404, HttpResponse
-from django.shortcuts import render
-from rest_framework.views import APIView
-from .models import *
-from rest_framework.response import Response
-from . serializer import *
+from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 import gridfs
-from io import BytesIO
-from bson import ObjectId
-from rest_framework.permissions import IsAdminUser
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from server.db_con_util.db_conn_class import DBConnect
-# from server.Logger.logger_util import logging
 from dotenv import load_dotenv
 load_dotenv()
+
+from django.http import Http404, HttpResponse
+from django.shortcuts import render
+from django.contrib.auth import authenticate
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import *
+from .serializer import *
+from server.db_con_util.db_conn_class import DBConnect
+# from server.Logger.logger_util import logging
 
 DEFAULT_IMG_URL = f'{os.getenv("HOST_NAME_REACT")}/src/assets/image_placeholder.jpg'
 CARDS_PER_PAGE = 6
@@ -553,9 +557,6 @@ class RealTimeSearchView(APIView):
             hasMore =  (curr_offset+cursor_slice_count)<total_results_count
             print(f"curr_offset: {curr_offset} hasMoreSearch: {hasMore}")
             
-            # print(len(results))
-            # print(f"final: {final_form_ids}")
-            # print(results)
             if not results or len(results)==0:
                 STATUS_CODE = 404
         except Exception as e:

@@ -17,11 +17,15 @@ export const useProjectPageData = () => {
     setLoading(true);
     axios
       .get(
-        `http://localhost:8000/api/view_create_post/?loadMore=${loadMore}&sortOrder=${sortOrder}&st=${startIndex}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/view_create_post/?loadMore=${loadMore}&sortOrder=${sortOrder}&st=${startIndex}`,
         { withCredentials: true }
       )
       .then((response) => {
-        console.log(response.data);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(response.data);
+        }
         let currOffsett = response.data.pop();
         let hasMoreFlag = response.data.pop();
         if (hasMoreFlag === undefined) {
@@ -30,8 +34,10 @@ export const useProjectPageData = () => {
         if (currOffsett === undefined) {
           currOffsett = { curr_offset: 0 };
         }
-        console.log(hasMoreFlag);
-        console.log(currOffsett);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(hasMoreFlag);
+          console.log(currOffsett);
+        }
         setHasMore(hasMoreFlag["hasMore"]);
         setCurrOffset(currOffsett["curr_offset"]);
         setProjectData(() => {

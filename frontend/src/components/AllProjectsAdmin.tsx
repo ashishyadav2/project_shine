@@ -1,10 +1,4 @@
-import {
-  mdiDotsVertical,
-  mdiFolderAlert,
-  mdiFolderAlertOutline,
-  mdiSort,
-} from "@mdi/js";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { mdiDotsVertical, mdiFolderAlert } from "@mdi/js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import Card from "../components/Card";
@@ -14,13 +8,10 @@ import InputField from "./InputField";
 import ActionButton from "./ActionButton";
 import {
   faArrowRight,
-  faL,
   faMagnifyingGlass,
   faPlus,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import debounce from "lodash.debounce";
-import { range } from "lodash";
 import axios from "axios";
 import bgImage from "../assets/image_placeholder.jpg";
 import { HandlePopUp } from "../EventsHandler/HandlePopUp";
@@ -145,12 +136,16 @@ const AllProjectsAdmin = ({
     }
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/search/?q=${searchText}/`
+        `${import.meta.env.VITE_BACKEND_URL}/api/search/?q=${searchText}/`
       );
       setResults(res.data);
-      console.log(res.data);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(res.data);
+      }
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.error(err);
+      }
     }
   };
 
@@ -158,22 +153,6 @@ const AllProjectsAdmin = ({
     const parts = img_url.split("/");
     return parts[parts.length - 2];
   };
-  // const confirmDelete = (item: any) => {
-  //   handleDelete(item.card_img_id, item.card_id);
-  //   setShowDeletePopUP(true);
-  // };
-  // const fetchResults = debounce(async (searchText) => {
-  //   if (!searchText) return setResults([]);
-  //   try {
-  //     const res = await axios.get(
-  //       `http://localhost:8000/search/?q=${searchText}/`
-  //     );
-  //     setResults(res.data);
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // }, 300);
   useEffect(() => {
     if (projectData && projectData.length > 0) {
       setPageLoading(false);
@@ -206,12 +185,14 @@ const AllProjectsAdmin = ({
         };
       }
       const res = await axios.post(
-        `http://localhost:8000/api/search/`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/search/`,
         searchReqObj,
         { withCredentials: true }
       );
       if (res.status == 200) {
-        console.log(res.data);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(res.data);
+        }
         let currOffsett = res.data.pop();
         let hasMoreFlag = res.data.pop();
         // if (loadMoreSearch) {
@@ -225,7 +206,9 @@ const AllProjectsAdmin = ({
         setCurrOffset(currOffsett["curr_offset"]);
         // }
         setIsSearchResultPresent(res.data.length > 0);
-        console.log(hasMoreSearch);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(hasMoreSearch);
+        }
         setProjectData(() => {
           if (loadMoreSearch) {
             let prevData = [...projectData];
@@ -245,18 +228,22 @@ const AllProjectsAdmin = ({
         setLoading(false);
         setHasMoreSearch(false);
       }
-      console.log(res.data);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(res.data);
+      }
     } catch (err) {
       setHasMoreSearch(false);
       setLoading(false);
       Notify("No results found", "pWarn");
-      console.error(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.error(err);
+      }
     }
   };
   const handleLogout = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/logout/",
+        `${import.meta.env.VITE_BACKEND_URL}/api/logout/`,
         {},
         { withCredentials: true }
       );
@@ -429,7 +416,9 @@ const AllProjectsAdmin = ({
             isEditing={true}
             controller={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
-              console.log(item);
+              if (import.meta.env.VITE_LOGGING) {
+                console.log(item);
+              }
               editController(
                 formReactState,
                 {

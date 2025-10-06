@@ -35,13 +35,17 @@ export const useAdminFormHandler = () => {
   } = HandlePopUp();
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
-    console.log("file change: ", file);
+    if (import.meta.env.VITE_LOGGING) {
+      console.log("file change: ", file);
+    }
     if (file && file.type.startsWith("image/")) {
       setSelectedFile(file);
       setPreviewURL(URL.createObjectURL(file));
       setActiveImgClass("imagePreviewActive");
       setFormData({ ...formData, img_url: previewURL, is_img_removed: false });
-      console.log("selected file:", file);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("selected file:", file);
+      }
     }
   };
 
@@ -72,16 +76,20 @@ export const useAdminFormHandler = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/image/upload/",
+        `${import.meta.env.VITE_BACKEND_URL}/api/image/upload/`,
         partialFormData,
         { withCredentials: true }
       );
-      console.log(response, "Image upload success");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(response, "Image upload success");
+      }
       Notify("Image uploaded successfully", "pSuccess");
       setImageId(response.data._id);
       return response.data._id;
     } catch (err) {
-      console.log(err, "Unable to upload image");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(err, "Unable to upload image");
+      }
       Notify("Unable to upload image", "pError");
       setImageId("");
       return "";
@@ -123,7 +131,9 @@ export const useAdminFormHandler = () => {
     for (const [key, value] of formDataObj) {
       if (value == "" || value === null) {
         Notify(`${key.toUpperCase()} cannot be empty!`, "pWarn");
-        console.log(`${key} cannot be empty!`);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(`${key} cannot be empty!`);
+        }
         return false;
       }
     }
@@ -136,36 +146,48 @@ export const useAdminFormHandler = () => {
       if (!validateFormFields(isEditBtn)) {
         return;
       }
-      console.log("inside edit mode");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("inside edit mode");
+      }
       // Notify("Editing Mode");
       let isImageUploaded = false;
       let isImagePresent = selectedFile != null;
       let uploaded_image_id = "";
-      console.log(`uploaded_image_id: ${uploaded_image_id}`);
-      console.log(`is image present: ${isImagePresent}`);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(`is image present: ${isImagePresent}`);
+        console.log(`uploaded_image_id: ${uploaded_image_id}`);
+      }
       if (isImagePresent) {
         uploaded_image_id = await handleUpload();
         isImageUploaded = uploaded_image_id != "";
-        console.log(
-          `${uploaded_image_id}| isImageUploaded-> ${isImageUploaded}`
-        );
-        console.log(`is image upload: ${isImageUploaded}`);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(
+            `${uploaded_image_id}| isImageUploaded-> ${isImageUploaded}`
+          );
+          console.log(`is image upload: ${isImageUploaded}`);
+        }
         if (isImageUploaded) {
           try {
             formData.new_img_id = uploaded_image_id;
-            console.log(`form_data with image: ${formData}`);
+            if (import.meta.env.VITE_LOGGING) {
+              console.log(`form_data with image: ${formData}`);
+            }
             const response = await axios.patch(
-              `http://localhost:8000/api/update_post/${formId}/`,
+              `${import.meta.env.VITE_BACKEND_URL}/api/update_post/${formId}/`,
               formData,
               { withCredentials: true }
             );
-            console.log(response.data, "data updated");
+            if (import.meta.env.VITE_LOGGING) {
+              console.log(response.data, "data updated");
+            }
             Notify("Image has been updated", "pSuccess");
             setTimeout(() => {
               location.reload();
             }, 2500);
           } catch (err) {
-            console.log(err, "not able to update image");
+            if (import.meta.env.VITE_LOGGING) {
+              console.log(err, "not able to update image");
+            }
             Notify("Unable to update image", "pError");
           }
         }
@@ -173,18 +195,22 @@ export const useAdminFormHandler = () => {
         try {
           // formData.from_date = `${strToDate(formData.from_date)}`;
           const response = await axios.patch(
-            `http://localhost:8000/api/update_post/${formId}/`,
+            `${import.meta.env.VITE_BACKEND_URL}/api/update_post/${formId}/`,
             formData,
             { withCredentials: true }
           );
-          console.log("Edit mode", formData);
-          console.log(response.data, "data updated");
+          if (import.meta.env.VITE_LOGGING) {
+            console.log("Edit mode", formData);
+            console.log(response.data, "data updated");
+          }
           Notify("Post is updated", "pSuccess");
           setTimeout(() => {
             location.reload();
           }, 3000);
         } catch (err) {
-          console.log(err);
+          if (import.meta.env.VITE_LOGGING) {
+            console.log(err);
+          }
           Notify("Unable to update post", "pError");
         }
       }
@@ -193,9 +219,13 @@ export const useAdminFormHandler = () => {
       if (!validateFormFields(isEditBtn)) {
         return;
       }
-      console.log("Add mode", formData);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("Add mode", formData);
+      }
       let uploaded_image_id = await handleUpload();
-      console.log("uploaded image id", uploaded_image_id);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("uploaded image id", uploaded_image_id);
+      }
       if (!uploaded_image_id) {
         Notify("Cannot upload image", "pError");
         return;
@@ -208,15 +238,22 @@ export const useAdminFormHandler = () => {
         card_img_id: uploaded_image_id,
         card_from_date: formData.from_date,
       };
-      console.log("Add mode form data", data);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("Add mode form data", data);
+      }
       if (uploaded_image_id != "") {
         axios
-          .post("http://localhost:8000/api/view_create_post/", data)
+          .post(
+            `${import.meta.env.VITE_BACKEND_URL}/api/view_create_post/`,
+            data
+          )
           .then((response) => {
             if (response.status === 200) {
               setFormFlag(true);
               resetForm();
-              console.log("Data inserted into database");
+              if (import.meta.env.VITE_LOGGING) {
+                console.log("Data inserted into database");
+              }
               Notify("Post created", "pSuccess");
               setTimeout(() => {
                 location.reload();
@@ -224,8 +261,10 @@ export const useAdminFormHandler = () => {
             }
           })
           .catch((err) => {
-            console.error(err);
-            console.log("Error in inserting into database");
+            if (import.meta.env.VITE_LOGGING) {
+              console.error(err);
+              console.log("Error in inserting into database");
+            }
             Notify("Unable to create post", "pError");
           });
       }

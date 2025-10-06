@@ -28,9 +28,13 @@ export const useSearchBarExt = () => {
           { withCredentials: true }
         );
         setTags(res.data);
-        console.log(res.data);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(res.data);
+        }
       } catch (err) {
-        console.error("Failed to fetch tags:", err);
+        if (import.meta.env.VITE_LOGGING) {
+          console.error("Failed to fetch tags:", err);
+        }
       }
     };
 

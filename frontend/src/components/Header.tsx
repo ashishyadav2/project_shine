@@ -21,10 +21,14 @@ const TopBar = ({ isActive = "" }: TopBarProps) => {
   useEffect(() => {
     if (screenWidth < 768) {
       setIsDesktopMode(false);
-      console.log("world");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("screenwidth < world");
+      }
     } else {
       setIsDesktopMode(true);
-      console.log("hello");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log("hello");
+      }
     }
   }, []);
   function showHideSearchBar() {

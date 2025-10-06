@@ -27,14 +27,19 @@ export const HandleImageUpload = () => {
     partialFormData.append("imageFile", selectedFile);
     try {
       const response = await axios.post(
-        "http://localhost:8000/imageUpload/",
-        partialFormData
+        `${import.meta.env.VITE_BACKEND_URL}/imageUpload/`,
+        partialFormData,
+        { withCredentials: true }
       );
-      console.log(response, "Image upload success");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(response, "Image upload success");
+      }
       setImageId(response.data._id);
       return img_id;
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.error(err);
+      }
       return null;
     }
   };

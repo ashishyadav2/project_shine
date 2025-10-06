@@ -11,7 +11,7 @@ const PrivateAdminRoute: React.FC<PrivateAdminRouteProps> = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/isloggedin/", {
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/isloggedin/`, {
         withCredentials: true,
       })
       .then(() => setAuth(true))
@@ -19,7 +19,9 @@ const PrivateAdminRoute: React.FC<PrivateAdminRouteProps> = ({ children }) => {
   }, []);
 
   if (auth === null) return null;
-  console.log(auth);
+  if (Boolean(import.meta.env.VITE_LOGGING)) {
+    console.log(auth);
+  }
   return auth ? <>{children}</> : <Navigate to="/login" />;
 };
 

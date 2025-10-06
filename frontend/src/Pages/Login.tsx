@@ -27,7 +27,9 @@ const Login = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/isloggedin/", { withCredentials: true })
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/isloggedin/`, {
+        withCredentials: true,
+      })
       .then(() => {
         navigate("/admin");
       })
@@ -46,16 +48,20 @@ const Login = () => {
         return;
       }
       const response = await axios.post(
-        "http://localhost:8000/api/login/",
+        `${import.meta.env.VITE_BACKEND_URL}/api/login/`,
         { username, password },
         { withCredentials: true }
       );
       if (response.status == 200) {
-        console.log(response.data);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(response.data);
+        }
         navigate("/admin");
       } else if (response.status == 401) {
         Notify("Invalid Credentials", "pError");
-        console.log("Invalid Credentials");
+        if (import.meta.env.VITE_LOGGING) {
+          console.log("Invalid Credentials");
+        }
       }
     } catch (error: any) {
       if (error.response) {
@@ -69,13 +75,19 @@ const Login = () => {
         } else {
           Notify(`Error: ${status}`, "pError");
         }
-        console.log("Server response error:", error.response.data);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log("Server response error:", error.response.data);
+        }
       } else if (error.request) {
         Notify("No response from server. Check your network", "pWarn");
-        console.log("No response:", error.request);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log("No response:", error.request);
+        }
       } else {
         Notify("Something went wrong :(", "pError");
-        console.log("Error:", error.message);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log("Error:", error.message);
+        }
       }
     }
   };

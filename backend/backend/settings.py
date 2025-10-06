@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-7r(1@1z!huqvsqmy_7hya4oj-!x1ehg&m_ha7b+2e%=@dl6*=q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [os.getenv("HOST_NAME_DOMAIN"), os.getenv("HOST_NAME_REACT_DOMAIN")]
 
 
 # Application definition
@@ -59,11 +59,11 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny']}
 #CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",     
-    "http://127.0.0.1:8000",     
+    os.getenv("HOST_NAME_REACT"),     
+    os.getenv("HOST_NAME"), 
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173/admin"
+    f"{os.getenv('HOST_NAME_REACT')}/admin"
 ]
 # CORS_ALLOWED_ORIGIN_REGEXES = [
 #     r"^http://localhost:5173/.*$"

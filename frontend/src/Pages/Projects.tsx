@@ -85,7 +85,9 @@ const Projects = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/search/?q=${searchText}&sort=${sortOrder}&st=${st}&loadMore=${loadMore}&/`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/search/?q=${searchText}&sort=${sortOrder}&st=${st}&loadMore=${loadMore}&/`
       );
       if (res.status == 200) {
         let currOffsett = res.data.pop();
@@ -115,10 +117,14 @@ const Projects = () => {
         setResults([]);
         setProjectData([]);
       }
-      console.log(res.data);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(res.data);
+      }
     } catch (err) {
       Notify("No results found", "pWarn");
-      console.error(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.error(err);
+      }
     }
     setLoading(false);
   };
@@ -133,13 +139,15 @@ const Projects = () => {
   const sortFilter = async (sortOrder: string) => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/search/?sort=${sortOrder}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/search/?sort=${sortOrder}`
       );
       if (res.status == 200) {
         setResults(res.data);
         setProjectData(res.data);
-        console.log(res.data);
-        console.log(projectData);
+        if (import.meta.env.VITE_LOGGING) {
+          console.log(projectData);
+          console.log(res.data);
+        }
       } else {
         Notify("No results found", "pWarn");
         setProjectData([]);
@@ -148,35 +156,12 @@ const Projects = () => {
       // console.log(res.data);
     } catch (err) {
       Notify("No results found", "pWarn");
-      console.error(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.error(err);
+      }
     }
   };
 
-  // const fetchResultsExt = async (searchReqObj: Object) => {
-  //   if (!searchReqObj) {
-  //     return setResults([]);
-  //   }
-  //   try {
-  //     if (!inputChangeHandlers.dataValidation()) {
-  //       Notify("Invalid date range", "pWarn");
-  //       return;
-  //     }
-  //     const res = await axios.post(
-  //       `http://localhost:8000/api/search/`,
-  //       searchReqObj
-  //     );
-  //     if (res.status == 200) {
-  //       setResults(res.data);
-  //     } else {
-  //       Notify("No results found", "pWarn");
-  //       setResults([]);
-  //     }
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     Notify("No results found", "pWarn");
-  //     console.error(err);
-  //   }
-  // };
   return (
     <>
       <Header isActive="projects" />

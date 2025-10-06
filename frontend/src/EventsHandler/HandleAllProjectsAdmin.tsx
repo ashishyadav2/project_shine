@@ -33,11 +33,13 @@ export const HandleAllProjectsAdmin = () => {
     selectedFileReactState(selectedFileValue);
     setFormIdReactState(formId);
     adminFormVisibleReactState("adminFormShow");
-    console.log("image id:", imageId);
-    console.log(formDataValue);
-    console.log("form id: ", formId);
-    console.log("is editing mode", isEditBtnBool);
-    console.log("Image file", selectedFileValue);
+    if (import.meta.env.VITE_LOGGING) {
+      console.log("image id:", imageId);
+      console.log(formDataValue);
+      console.log("form id: ", formId);
+      console.log("is editing mode", isEditBtnBool);
+      console.log("Image file", selectedFileValue);
+    }
   };
 
   const handleDelete = async (
@@ -47,7 +49,7 @@ export const HandleAllProjectsAdmin = () => {
   ) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/delete_post/`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/delete_post/`,
         {
           data: {
             img_id,
@@ -57,9 +59,13 @@ export const HandleAllProjectsAdmin = () => {
           withCredentials: true,
         }
       );
-      console.log(response.data, "data deleted");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(response.data, "data deleted");
+      }
     } catch (err) {
-      console.log(err);
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(err);
+      }
     }
   };
   const copyControllerLogic = async (
@@ -76,18 +82,24 @@ export const HandleAllProjectsAdmin = () => {
     adminFormVisibleReactState: React.Dispatch<React.SetStateAction<string>>
   ) => {
     Object.assign(formDataValue, { isCopyMode: true });
-    console.log(formDataValue);
+    if (import.meta.env.VITE_LOGGING) {
+      console.log(formDataValue);
+    }
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/view_create_post/",
+        `${import.meta.env.VITE_BACKEND_URL}/api/view_create_post/`,
         formDataValue,
         { withCredentials: true }
       );
-      console.log(response, "Copy created");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(response, "Copy created");
+      }
       Notify("Copy Created", "pSuccess");
     } catch (err) {
-      console.log(err);
-      console.log("Error in copy creation");
+      if (import.meta.env.VITE_LOGGING) {
+        console.log(err);
+        console.log("Error in copy creation");
+      }
       Notify("Unable to create", "pError");
     }
   };
