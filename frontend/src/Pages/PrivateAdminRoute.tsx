@@ -19,7 +19,7 @@ const PrivateAdminRoute: React.FC<PrivateAdminRouteProps> = ({ children }) => {
   }, []);
 
   if (auth === null) return null;
-  if (Boolean(import.meta.env.VITE_LOGGING)) {
+  if (import.meta.env.VITE_LOGGING == "true") {
     console.log(auth);
   }
   return auth ? <>{children}</> : <Navigate to="/login" />;

@@ -21,12 +21,12 @@ const TopBar = ({ isActive = "" }: TopBarProps) => {
   useEffect(() => {
     if (screenWidth < 768) {
       setIsDesktopMode(false);
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("screenwidth < world");
       }
     } else {
       setIsDesktopMode(true);
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("hello");
       }
     }

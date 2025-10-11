@@ -139,11 +139,11 @@ const AllProjectsAdmin = ({
         `${import.meta.env.VITE_BACKEND_URL}/api/search/?q=${searchText}/`
       );
       setResults(res.data);
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(res.data);
       }
     } catch (err) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.error(err);
       }
     }
@@ -190,7 +190,7 @@ const AllProjectsAdmin = ({
         { withCredentials: true }
       );
       if (res.status == 200) {
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(res.data);
         }
         let currOffsett = res.data.pop();
@@ -206,7 +206,7 @@ const AllProjectsAdmin = ({
         setCurrOffset(currOffsett["curr_offset"]);
         // }
         setIsSearchResultPresent(res.data.length > 0);
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(hasMoreSearch);
         }
         setProjectData(() => {
@@ -228,14 +228,14 @@ const AllProjectsAdmin = ({
         setLoading(false);
         setHasMoreSearch(false);
       }
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(res.data);
       }
     } catch (err) {
       setHasMoreSearch(false);
       setLoading(false);
       Notify("No results found", "pWarn");
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.error(err);
       }
     }
@@ -416,7 +416,7 @@ const AllProjectsAdmin = ({
             isEditing={true}
             controller={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
-              if (import.meta.env.VITE_LOGGING) {
+              if (import.meta.env.VITE_LOGGING == "true") {
                 console.log(item);
               }
               editController(

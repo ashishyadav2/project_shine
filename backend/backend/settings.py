@@ -61,9 +61,11 @@ REST_FRAMEWORK = {'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.All
 CORS_ALLOWED_ORIGINS = [
     os.getenv("HOST_NAME_REACT"),     
     os.getenv("HOST_NAME"), 
+    'http://192.168.29.146'
 ]
 CSRF_TRUSTED_ORIGINS = [
-    f"{os.getenv('HOST_NAME_REACT')}/admin"
+    f"{os.getenv('HOST_NAME_REACT')}/admin",
+    'http://192.168.29.146'
 ]
 # CORS_ALLOWED_ORIGIN_REGEXES = [
 #     r"^http://localhost:5173/.*$"

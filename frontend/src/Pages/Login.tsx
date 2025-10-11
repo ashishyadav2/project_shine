@@ -53,13 +53,13 @@ const Login = () => {
         { withCredentials: true }
       );
       if (response.status == 200) {
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(response.data);
         }
         navigate("/admin");
       } else if (response.status == 401) {
         Notify("Invalid Credentials", "pError");
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log("Invalid Credentials");
         }
       }
@@ -75,17 +75,17 @@ const Login = () => {
         } else {
           Notify(`Error: ${status}`, "pError");
         }
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log("Server response error:", error.response.data);
         }
       } else if (error.request) {
         Notify("No response from server. Check your network", "pWarn");
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log("No response:", error.request);
         }
       } else {
         Notify("Something went wrong :(", "pError");
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log("Error:", error.message);
         }
       }

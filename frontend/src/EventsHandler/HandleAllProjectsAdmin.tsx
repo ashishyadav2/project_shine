@@ -33,7 +33,7 @@ export const HandleAllProjectsAdmin = () => {
     selectedFileReactState(selectedFileValue);
     setFormIdReactState(formId);
     adminFormVisibleReactState("adminFormShow");
-    if (import.meta.env.VITE_LOGGING) {
+    if (import.meta.env.VITE_LOGGING == "true") {
       console.log("image id:", imageId);
       console.log(formDataValue);
       console.log("form id: ", formId);
@@ -59,11 +59,11 @@ export const HandleAllProjectsAdmin = () => {
           withCredentials: true,
         }
       );
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(response.data, "data deleted");
       }
     } catch (err) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(err);
       }
     }
@@ -82,7 +82,7 @@ export const HandleAllProjectsAdmin = () => {
     adminFormVisibleReactState: React.Dispatch<React.SetStateAction<string>>
   ) => {
     Object.assign(formDataValue, { isCopyMode: true });
-    if (import.meta.env.VITE_LOGGING) {
+    if (import.meta.env.VITE_LOGGING == "true") {
       console.log(formDataValue);
     }
     try {
@@ -91,12 +91,12 @@ export const HandleAllProjectsAdmin = () => {
         formDataValue,
         { withCredentials: true }
       );
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(response, "Copy created");
       }
       Notify("Copy Created", "pSuccess");
     } catch (err) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(err);
         console.log("Error in copy creation");
       }

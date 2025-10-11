@@ -35,7 +35,7 @@ export const useAdminFormHandler = () => {
   } = HandlePopUp();
   const handleFileChange = (e: any) => {
     const file = e.target.files[0];
-    if (import.meta.env.VITE_LOGGING) {
+    if (import.meta.env.VITE_LOGGING == "true") {
       console.log("file change: ", file);
     }
     if (file && file.type.startsWith("image/")) {
@@ -43,7 +43,7 @@ export const useAdminFormHandler = () => {
       setPreviewURL(URL.createObjectURL(file));
       setActiveImgClass("imagePreviewActive");
       setFormData({ ...formData, img_url: previewURL, is_img_removed: false });
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("selected file:", file);
       }
     }
@@ -80,14 +80,14 @@ export const useAdminFormHandler = () => {
         partialFormData,
         { withCredentials: true }
       );
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(response, "Image upload success");
       }
       Notify("Image uploaded successfully", "pSuccess");
       setImageId(response.data._id);
       return response.data._id;
     } catch (err) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(err, "Unable to upload image");
       }
       Notify("Unable to upload image", "pError");
@@ -131,7 +131,7 @@ export const useAdminFormHandler = () => {
     for (const [key, value] of formDataObj) {
       if (value == "" || value === null) {
         Notify(`${key.toUpperCase()} cannot be empty!`, "pWarn");
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(`${key} cannot be empty!`);
         }
         return false;
@@ -146,21 +146,21 @@ export const useAdminFormHandler = () => {
       if (!validateFormFields(isEditBtn)) {
         return;
       }
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("inside edit mode");
       }
       // Notify("Editing Mode");
       let isImageUploaded = false;
       let isImagePresent = selectedFile != null;
       let uploaded_image_id = "";
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(`is image present: ${isImagePresent}`);
         console.log(`uploaded_image_id: ${uploaded_image_id}`);
       }
       if (isImagePresent) {
         uploaded_image_id = await handleUpload();
         isImageUploaded = uploaded_image_id != "";
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(
             `${uploaded_image_id}| isImageUploaded-> ${isImageUploaded}`
           );
@@ -169,7 +169,7 @@ export const useAdminFormHandler = () => {
         if (isImageUploaded) {
           try {
             formData.new_img_id = uploaded_image_id;
-            if (import.meta.env.VITE_LOGGING) {
+            if (import.meta.env.VITE_LOGGING == "true") {
               console.log(`form_data with image: ${formData}`);
             }
             const response = await axios.patch(
@@ -177,7 +177,7 @@ export const useAdminFormHandler = () => {
               formData,
               { withCredentials: true }
             );
-            if (import.meta.env.VITE_LOGGING) {
+            if (import.meta.env.VITE_LOGGING == "true") {
               console.log(response.data, "data updated");
             }
             Notify("Image has been updated", "pSuccess");
@@ -185,7 +185,7 @@ export const useAdminFormHandler = () => {
               location.reload();
             }, 2500);
           } catch (err) {
-            if (import.meta.env.VITE_LOGGING) {
+            if (import.meta.env.VITE_LOGGING == "true") {
               console.log(err, "not able to update image");
             }
             Notify("Unable to update image", "pError");
@@ -199,7 +199,7 @@ export const useAdminFormHandler = () => {
             formData,
             { withCredentials: true }
           );
-          if (import.meta.env.VITE_LOGGING) {
+          if (import.meta.env.VITE_LOGGING == "true") {
             console.log("Edit mode", formData);
             console.log(response.data, "data updated");
           }
@@ -208,7 +208,7 @@ export const useAdminFormHandler = () => {
             location.reload();
           }, 3000);
         } catch (err) {
-          if (import.meta.env.VITE_LOGGING) {
+          if (import.meta.env.VITE_LOGGING == "true") {
             console.log(err);
           }
           Notify("Unable to update post", "pError");
@@ -219,11 +219,11 @@ export const useAdminFormHandler = () => {
       if (!validateFormFields(isEditBtn)) {
         return;
       }
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("Add mode", formData);
       }
       let uploaded_image_id = await handleUpload();
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("uploaded image id", uploaded_image_id);
       }
       if (!uploaded_image_id) {
@@ -238,20 +238,21 @@ export const useAdminFormHandler = () => {
         card_img_id: uploaded_image_id,
         card_from_date: formData.from_date,
       };
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log("Add mode form data", data);
       }
       if (uploaded_image_id != "") {
         axios
           .post(
             `${import.meta.env.VITE_BACKEND_URL}/api/view_create_post/`,
-            data
+            data,
+            { withCredentials: true }
           )
           .then((response) => {
             if (response.status === 200) {
               setFormFlag(true);
               resetForm();
-              if (import.meta.env.VITE_LOGGING) {
+              if (import.meta.env.VITE_LOGGING == "true") {
                 console.log("Data inserted into database");
               }
               Notify("Post created", "pSuccess");
@@ -261,7 +262,7 @@ export const useAdminFormHandler = () => {
             }
           })
           .catch((err) => {
-            if (import.meta.env.VITE_LOGGING) {
+            if (import.meta.env.VITE_LOGGING == "true") {
               console.error(err);
               console.log("Error in inserting into database");
             }

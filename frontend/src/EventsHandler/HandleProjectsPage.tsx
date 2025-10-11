@@ -23,7 +23,7 @@ export const useProjectPageData = () => {
         { withCredentials: true }
       )
       .then((response) => {
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(response.data);
         }
         let currOffsett = response.data.pop();
@@ -34,7 +34,7 @@ export const useProjectPageData = () => {
         if (currOffsett === undefined) {
           currOffsett = { curr_offset: 0 };
         }
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(hasMoreFlag);
           console.log(currOffsett);
         }
@@ -51,7 +51,9 @@ export const useProjectPageData = () => {
       })
       .catch((err) => {
         setHasMore(false);
-        console.error(err);
+        if (import.meta.env.VITE_LOGGING == "true") {
+          console.error(err);
+        }
         setProjectData([]);
         setError(true);
       })

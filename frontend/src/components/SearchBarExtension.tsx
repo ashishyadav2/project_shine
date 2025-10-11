@@ -18,7 +18,7 @@ export const SearchBarExtension = ({
 }: SearchBarExtensionProps) => {
   // const { tags, searchReq, inputChangeHandlers } = useSearchBarExt();
 
-  if (import.meta.env.VITE_LOGGING) {
+  if (import.meta.env.VITE_LOGGING == "true") {
     console.log(searchReq);
   }
 

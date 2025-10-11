@@ -117,12 +117,12 @@ const Projects = () => {
         setResults([]);
         setProjectData([]);
       }
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(res.data);
       }
     } catch (err) {
       Notify("No results found", "pWarn");
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.error(err);
       }
     }
@@ -144,7 +144,7 @@ const Projects = () => {
       if (res.status == 200) {
         setResults(res.data);
         setProjectData(res.data);
-        if (import.meta.env.VITE_LOGGING) {
+        if (import.meta.env.VITE_LOGGING == "true") {
           console.log(projectData);
           console.log(res.data);
         }
@@ -156,7 +156,7 @@ const Projects = () => {
       // console.log(res.data);
     } catch (err) {
       Notify("No results found", "pWarn");
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.error(err);
       }
     }

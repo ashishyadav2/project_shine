@@ -1,3 +1,4 @@
+#region imports
 import os
 import re
 import time
@@ -26,22 +27,27 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import *
 from .serializer import *
 from server.db_con_util.db_conn_class import DBConnect
-# from server.Logger.logger_util import logging
+from server.Logger.logger_util import log, aprint
+#endregion
 
 DEFAULT_IMG_URL = f'{os.getenv("HOST_NAME_REACT")}/src/assets/image_placeholder.jpg'
 CARDS_PER_PAGE = 6
+
 class ImageUtilities:
     def __init__(self):
         pass
     def compress_image(self,uncompressed_image,isBin=0,quality=65,target_kb=400):
         try:
+            log("debug","start")
             img = None
             if isBin==1:
                 img = Image.open(BytesIO(uncompressed_image))
-                print("From copy")
+                log("info",f"From copy button isBin: {1}")
+                aprint("From copy button")
             else:
                 img = Image.open(uncompressed_image)   
-                print("from add project")
+                log("info",f"from add project isBin: {1}")
+                aprint("from add project")
             if img.mode in ("RGBA", "P"):
                 img = img.convert("RGB")
             compressed_img = BytesIO()
@@ -54,11 +60,13 @@ class ImageUtilities:
                 img.save(compressed_img, format="JPEG", quality=quality, optimize=True)
                 compressed_img.seek(0)
                 size_kb = compressed_img.getbuffer().nbytes / 1024
-                print(f"Retry compressing: {size_kb:.2f} KB at quality {quality}")
-
+                aprint(f"Retry compressing: {size_kb:.2f} KB at quality {quality}")
+            log("info",f"Image compressed at: {size_kb:.2f} KB at quality {quality}")
+            log("debug","end")
             return compressed_img
         except Exception as e:
-            print(e)
+            log("error",str(e))
+            aprint(e)
         return None
     
 class CookieJWTAuthentication(JWTAuthentication):
@@ -67,10 +75,14 @@ class CookieJWTAuthentication(JWTAuthentication):
         if not raw_token:
             return None
         try:
+            log("debug","start")
             validated_token = self.get_validated_token(raw_token)
             user = self.get_user(validated_token)
+            log("info","successfully authenticated token")
+            log("debug","end")
             return (user, validated_token)
-        except Exception:
+        except Exception as e:
+            log("error",str(e))
             return None
    
 class ReactView(APIView):
@@ -83,38 +95,44 @@ class ReactView(APIView):
     
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
+        log("debug","start")
         if self.request.method == 'GET':
+            log("debug","end")
             return []  
+        log("debug","end")
         return [IsAuthenticated()]
     
     def get(self, request):
         output = []
         try:
+            log("debug","start")
             user = None
             if request.user.is_authenticated:
                 user = request.user
                 isAdmin = user.is_superuser
             else:
                 isAdmin = False  # treats anonymous as non-admin
-            print(user,isAdmin)
+            aprint(f"user: {user}, isAdmin: {isAdmin}")
             req_obj = request.GET.dict()
             loadMore = req_obj.get("loadMore",False)
             sort_order = int(req_obj.get("sortOrder","-1"))
             start_index = int(req_obj.get("st","0"))
             if sort_order not in [1,-1]:
                 STATUS_CODE = 400
+                log("info",f"Invalid sort order, sort_order: {sort_order}, STATUS_CODE: {STATUS_CODE}")
                 return Response({"message":"Invalid sort order"},status=STATUS_CODE)
-            print(req_obj)
+            aprint(f"req_obj: {req_obj}")
             try:
                 loadMore = json.loads(loadMore.lower()) #imp converting string to boolean
             except Exception as exp:
-                print(exp)
+                log("error",f"loadMore typecast exception: {str(e)}")
+                aprint(exp)
             curr_offset = 0 
             if loadMore:
                 curr_offset = start_index + CARDS_PER_PAGE
             else:
                 start_index = 0
-            time.sleep(0.5)
+            #time.sleep(0.5)
             STATUS_CODE = 200
             min_date = datetime(2019,1,1)
             max_date = datetime.now()
@@ -129,11 +147,12 @@ class ReactView(APIView):
             total_doc_count = all_documents.count()            
             all_documents = all_documents.skip(curr_offset).limit(CARDS_PER_PAGE)
             cursor_slice_count = all_documents.count(with_limit_and_skip=True)
-            print(cursor_slice_count)
+            aprint(f"cursor_slice_count : {cursor_slice_count}")
             hasMore =  (curr_offset+cursor_slice_count)< total_doc_count
-            print(f"curr_offset: {curr_offset}")
+            aprint(f"curr_offset: {curr_offset}")
             if total_doc_count<1:
                 STATUS_CODE=411
+                log("info","No records found, total_doc_count: {total_doc_count}")
                 output.append({"message":"No records found"})
             for doc in all_documents:
                 img_id = doc.get("card_img_id", "")
@@ -150,9 +169,11 @@ class ReactView(APIView):
                 })
             output.append({"hasMore":hasMore})
             output.append({"curr_offset": curr_offset})
+            log("debug","end")
         except Exception as e:
             STATUS_CODE = 500
-            print(e)
+            log("error",f"ReactView.get() {str(e)}")
+            aprint(e)
         return Response(output,status=STATUS_CODE)
         
     def __random_id(self,size=5):
@@ -162,11 +183,12 @@ class ReactView(APIView):
     def post(self, request):
         self.db_obj.start_session()
         response = None
-        print(request.data)
+        aprint(f"ReactView.post() request.data: {request.data}")
         try:
+            log("debug","start")
             self.db_obj.start_transaction()
             isCopyMode = request.data.get("isCopyMode",False)
-            print(f"from copy: {request.data} is copy mode: {isCopyMode}")
+            aprint(f"from copy: {request.data} is copy mode: {isCopyMode}")
             img_id = request.data.get("card_img_id","")
             card_from_date = request.data.get("card_from_date","")
             if card_from_date == "":
@@ -179,7 +201,7 @@ class ReactView(APIView):
                     base_file_name,img_extension  = existing_img_file.filename.split(".")
                     random_id = self.__random_id()
                     new_image_name = f"{base_file_name}_{random_id}.{img_extension}"
-                    print(new_image_name)
+                    aprint(f"new_image_name: {new_image_name}")
                     compressed_img = self.img_util.compress_image(img_bin_data,isBin=1)
                     if compressed_img:
                         new_img_id = self.gfs.put(
@@ -189,11 +211,12 @@ class ReactView(APIView):
                             metadata=existing_img_file.metadata)
                         request.data["card_img_id"] = str(new_img_id)
                         del request.data["isCopyMode"]
-                    print(f"After del isCopyMode",request.data)
+                    aprint(f"After del isCopyMode",request.data)
                 except Exception as ex:
                     self.db_obj.rollback_transaction()
                     response = Response({"message": "Cannot create copy"})
-                    print(ex)
+                    log("error",f"Copy mode image save : {str(e)}")
+                    aprint(ex)
             serializer = ReactSerializer(data=request.data)
             if serializer.is_valid(raise_exception = True):
                 serializer_obj = serializer.save()
@@ -201,14 +224,18 @@ class ReactView(APIView):
                 self.__insert_tag_helper(inserted_form_id,request.data.get("card_tags",[]))
                 response = Response(serializer.data)
                 self.db_obj.commit_transaction()
+            log("debug","end")
         except Exception as exp:
-            print(exp)
+            aprint(exp)
+            log("error",f"error in saving post: {str(e)}")
             if new_img_id:
                 try:
                     self.gfs.delete(new_img_id)
-                    print(f"Rolled back GridFS file: {new_img_id}")
+                    aprint(f"Rolled back GridFS file: {new_img_id}")
+                    log("error",f"Rolled back image saved because post save was unsuccessful")
                 except Exception as cleanup_err:
-                    print(f"WARNING: failed to cleanup GridFS file {new_img_id}: {cleanup_err}")
+                    aprint(f"WARNING: failed to cleanup GridFS file {new_img_id}: {cleanup_err}")
+                    log("error",f"Error in image rollback: {str(cleanup_err)}")
             response = Response({"message": "Transaction failed"}, status=500)
         finally:
             self.db_obj.end_session()
@@ -216,32 +243,36 @@ class ReactView(APIView):
         
     def delete(self,request):
         try:
+            log("debug","start")
             post_id = request.data.get("card_id",None)
             img_id = request.data.get("img_id",None)
             existing_record = None
-            print(request.data)
+            aprint(f"ReactView.delete() request.data: {request.data}")
             if img_id:
                 isImageDeleted = self.gfs.delete(ObjectId(img_id))
-                print(f"{img_id, isImageDeleted}")
+                aprint(f"{img_id, isImageDeleted}")
                 if isImageDeleted is None:
                     existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
-                    print(f"{existing_record}")
+                    aprint(f"{existing_record}")
             else:
                 existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
-            print(f'deleted: {request.data.get("card_tags",[])}')
+            aprint(f'deleted: {request.data.get("card_tags",[])}')
             self.__delete_tag_helper(post_id,request.data.get("card_tags",[]))
-            
+            log("debug","end")
             return Response({"message": f"data deleted from server-> {existing_record!=None}"})
         except Exception as ex:
+            log("error",f"{str(ex)}")
+            aprint(ex)
             return Response({"message": "error occurred"})
             
     def patch(self,request,form_doc_id=None):
-        print(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
+        aprint(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
         response_obj = {"message":"","status":200}
         try:
+            log("debug","start")
             existing_record = self.collection.find_one({"_id": ObjectId(form_doc_id)})
             if existing_record:                
-                print(f"DB>> {existing_record}\n")
+                aprint(f"DB>> {existing_record}\n")
                 update_fields = {}
                 update_fields["card_title"] = request.data.get("title","")
                 update_fields["card_desc"] = request.data.get("desc","")
@@ -279,17 +310,17 @@ class ReactView(APIView):
                 elif old_img_id == "": #if image is removed
                     update_fields["card_img_id"] = "" 
                     
-                print(f"modified fields>> {update_fields}")
+                aprint(f"modified fields>> {update_fields}")
                 result = self.collection.update_one(
                             {"_id": ObjectId(form_doc_id)},
                             {"$set": update_fields}
                         )
                 if result.modified_count > 0:
-                    print("Record updated successfully")
+                    aprint("Record updated successfully")
                     response_obj["message"] = "Record updated successfully"
                     response_obj["status"] = 200
                 else:
-                    print("No changes made to the record")
+                    aprint("No changes made to the record")
                     response_obj["message"] = "No changes made to the record"
                     response_obj["status"] = 200
                     
@@ -298,7 +329,7 @@ class ReactView(APIView):
                 tags_from_db_set = set(existing_record.get("card_tags",[]))
                 tags_to_be_inserted = list(tags_from_request_set.difference(tags_from_db_set))
                 tags_to_deleted = list(tags_from_db_set.difference(tags_from_request_set))
-                print(f"tag inserted:{tags_to_be_inserted}\ntags deleted:{tags_to_deleted}")
+                aprint(f"tag inserted:{tags_to_be_inserted}\ntags deleted:{tags_to_deleted}")
                 if tags_to_be_inserted:
                     self.__insert_tag_helper(form_doc_id,tags_to_be_inserted)
                 if tags_to_deleted:
@@ -306,14 +337,17 @@ class ReactView(APIView):
             else:
                 response_obj["message"] = "Record"
                 response_obj["status"] = 404
+            log("debug","end")
         except Exception as e:
-            print(e)
+            aprint(e)
+            log("error",f"ReactView.patch() {str(e)}")
             response_obj["message"] = "Internal server error"
             response_obj["status"] = 500
         return Response(response_obj,status=response_obj.get("status"))
     
     def __insert_tag_helper(self,form_id,tags):
         try:
+            log("debug","start")
             # insert into tags collection
             bulk_upsert_query = []
             for tag_name in tags:
@@ -333,19 +367,23 @@ class ReactView(APIView):
                 )
             # print(bulk_upsert_query)
             self.tag_collection.bulk_write(bulk_upsert_query)
-            
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"ReactView.__insert_tag_helper(): {str(e)}")
+            aprint(e)
         
     def __delete_tag_helper(self,post_id,tag_names):
         try:
+            log("debug","start")
             for tag_name in tag_names:
                 #delete from cards_linked array
                 self.tag_collection.update_one({"tag_name":tag_name},{"$pull": {"cards_linked": ObjectId(post_id)}})
                 #delete the tag name if length is zero
                 self.tag_collection.delete_one({"cards_linked": {"$size": 0}})
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"ReactView.__delete_tag_helper(): {str(e)}")
+            aprint(e)
       
 class RealTimeSearchView(APIView):
     db_obj = DBConnect()
@@ -354,13 +392,18 @@ class RealTimeSearchView(APIView):
     gfs = db_obj.get_grid_fs()
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
+        log("debug","start")
         if self.request.method == 'GET':
+            log("debug","end")
             return []  
+        log("debug","end")
         return [IsAuthenticated()]
     
     def _create_response(self,results,hasMore,curr_offset=0):
         try:
+            log("debug","start")
             if not results:
+                log("info",f"results is None, no results found")
                 return {"message":"No results found"}
             
             for item in results:
@@ -369,8 +412,12 @@ class RealTimeSearchView(APIView):
             results.append({"hasMore":hasMore})
             results.append({"curr_offset": curr_offset})
             # print(results)
+            log("info",f"results length: {len(results)}")
+            log("info",f"results length without hasMore and curr_offset: {len(results)-2}")
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"ReactView.__insert_tag_helper(): {str(e)}")
+            aprint(e)
         return results
     
     def get(self,request):            
@@ -380,7 +427,8 @@ class RealTimeSearchView(APIView):
         curr_offset = 0
         hasMore = False
         try:
-            print(request.GET)
+            log("debug","start")
+            aprint(f"RealTimeSearchView.get() request.GET: {request.GET}")
             query = request.GET.get('q', '')
             sort_order = int(request.GET.get('sort',-1))
             start_index = int(request.GET.get('st',0))
@@ -389,7 +437,7 @@ class RealTimeSearchView(APIView):
             if sort_order not in [1,-1]:
                 STATUS_CODE = 400
                 return Response({"message":"Invalid sort order"},status=STATUS_CODE)
-            print(f"Sort order: {sort_order}")
+            aprint(f"Sort order: {sort_order}")
             results = []
             min_date = datetime(2019,1,1)
             max_date = datetime.now()
@@ -421,17 +469,19 @@ class RealTimeSearchView(APIView):
                 results_cursor = self.collection.find(search_query).skip(curr_offset).limit(CARDS_PER_PAGE)
             if not results_cursor:
                 STATUS_CODE=404
-            print(search_query)
+            aprint(f"Search Query: {search_query}")
             projects_doc_count = results_cursor.count()
             cursor_slice_count = results_cursor.count(with_limit_and_skip=True)
-            print(f"each slide: {cursor_slice_count}, count: {projects_doc_count}")
+            aprint(f"each slide: {cursor_slice_count}, count: {projects_doc_count}")
             hasMore =  (curr_offset+cursor_slice_count)<projects_doc_count
             results = list(results_cursor)
-            time.sleep(0.5)
-            print(f"curr offset: {curr_offset}, hasMore: {hasMore}")
+            #time.sleep(0.5)
+            aprint(f"curr offset: {curr_offset}, hasMore: {hasMore}")
+            log("debug","end")
         except Exception as e:
             STATUS_CODE = 500
-            print(e)
+            log("error",f"RealTimeSearchView.get() {str(e)}")
+            aprint(e)
         return Response(self._create_response(results,hasMore,curr_offset),status=STATUS_CODE)
     
     def post(self,request):
@@ -440,7 +490,8 @@ class RealTimeSearchView(APIView):
         final_search_query = {}
         sort_order = -1
         try:
-            print(request.data)
+            log("debug","start")
+            aprint(f"RTSV.post() request.data: {request.data}")
             search_req = request.data
             start_index = int(search_req.get("st","0"))
             loadMore = search_req.get("loadMore",False)
@@ -464,7 +515,8 @@ class RealTimeSearchView(APIView):
                     to_date = datetime.fromisoformat(to_date)
                 except Exception as e:
                     STATUS_CODE = 400
-                    print(e)
+                    log("error",f"RTSV.post(): {str(e)}")
+                    aprint(e)
                     return
                     
                 
@@ -514,7 +566,7 @@ class RealTimeSearchView(APIView):
                         text_filter]
                 }
                 projection = {"_id":1}
-                print(search_obj)
+                aprint(search_obj)
                 date_results = self.collection.find(search_obj,projection)
                 date_results_form_ids = {str(item["_id"]): True for item in date_results}
                 # print(f"date_results: {date_results_form_ids}")
@@ -522,6 +574,7 @@ class RealTimeSearchView(APIView):
                 tag_results_form_ids = set()
                 final_form_ids = []
                 if search_tags:
+                    search_tags = [each_tag.split()[0] for each_tag in search_tags]
                     tag_results_temp = list(self.tags_collection.find({"tag_name": {"$in": search_tags}},{"_id": 0, "cards_linked": 1}))
                     for item in tag_results_temp:
                         for form_id in item["cards_linked"]:
@@ -543,7 +596,7 @@ class RealTimeSearchView(APIView):
                 curr_offset = start_index + CARDS_PER_PAGE
             else:
                 start_index = 0
-            time.sleep(0.5)
+            #time.sleep(0.5)
             results_cursor = self.collection.find(final_search_query).sort([("card_from_date", int(sort_order)), ("_id", int(sort_order))])
             
             total_results_count = results_cursor.count()
@@ -553,15 +606,17 @@ class RealTimeSearchView(APIView):
             results = list(results_cursor)
             # print(results)
             cursor_slice_count = results_cursor.count(with_limit_and_skip=True)
-            print(cursor_slice_count)
+            aprint(cursor_slice_count)
             hasMore =  (curr_offset+cursor_slice_count)<total_results_count
-            print(f"curr_offset: {curr_offset} hasMoreSearch: {hasMore}")
+            aprint(f"curr_offset: {curr_offset} hasMoreSearch: {hasMore}")
             
             if not results or len(results)==0:
                 STATUS_CODE = 404
+            log("debug","end")
         except Exception as e:
             results = []
-            print(e)
+            log("error",f"RTSV.post(): {str(e)}")
+            aprint(e)
             STATUS_CODE = 500
         finally:
             return Response(self._create_response(results,hasMore,curr_offset),status=STATUS_CODE)
@@ -574,30 +629,41 @@ class ImageUploadView(APIView):
     flag = True
     authentication_classes = [CookieJWTAuthentication]
     def get_permissions(self):
+        log("debug","start")
         if self.request.method == 'GET':
+            log("debug","end")
             return []  
+        log("debug","end")
         return [IsAuthenticated()]
+    
     def get(self, request, image_id):
         try:
+            log("debug","start")
             file = self.gfs.get(ObjectId(image_id))
             response = HttpResponse(file.read(), content_type=file.content_type)
             response['Content-Disposition'] = f'inline; filename="{file.filename}"'
+            log("debug","end")
             return response
-        except:
+        except Exception as e:
+            log("error",f"IUV.get(): {str(e)}")
+            aprint(e)
             return HttpResponse("Image not found", status=404)
     
     def post(self,request):
         STATUS_CODE=200        
         try:
+            log("debug","start")
             image_file = request.FILES.get("imageFile")     
             if not image_file:
                 return Response({"error": "Image file is required"}, status=400)
             compressed_img = self.img_util.compress_image(image_file)
             file_id = self.gfs.put(compressed_img, filename=image_file.name, content_type="image/jpeg")
             res = {"_id" : str(file_id)}
+            log("debug","end")
         except Exception as e:
             STATUS_CODE=500
-            print(e)
+            log("error",f"IUV.post(): {str(e)}")
+            aprint(e)
         
         return Response(res,status=STATUS_CODE)
     
@@ -609,13 +675,16 @@ class GetTags(APIView):
     def get(self,request):
         results = None
         try:
+            log("debug","start")
             # to get tags along with their counts
             # db_results = list(self.collection.find({},{"tag_name": 1,"_id":0,"cards_linked": 1}))
             # results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
-            db_results = list(self.collection.find({},{"tag_name": 1,"_id":0}))
-            results = {obj["tag_name"]: True for obj in db_results}
+            db_results = list(self.collection.find({},{"tag_name": 1,"cards_linked":1,"_id":0}))
+            results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"GetTags.get(): {str(e)}")
+            aprint(e)
         return Response(results.keys())
     
 class LogoutView(APIView):
@@ -623,21 +692,26 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
+            log("debug","start")
             response = Response({"message": "Logged out"})
             response.delete_cookie("access_token")
             response.delete_cookie("refresh_token")
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"LogoutView.post(): {str(e)}")
+            aprint(e)
         return response
 
 class LoginView(APIView):
     def post(self, request):
         try:
+            log("debug","start")
             username = request.data.get("username")
             password = request.data.get("password")
             user = authenticate(username=username, password=password)
-            
+            log("info",f"user: {user}")
             if user:
+                log("info",f"user: {user} found user")
                 refresh = RefreshToken.for_user(user)
                 response = Response({"message": "Login successful"})
                 response.set_cookie(
@@ -656,8 +730,11 @@ class LoginView(APIView):
                     samesite='Strict',
                 )
                 return response
+            log("info","user not found")
+            log("debug","end")
         except Exception as e:
-            print(e)
+            log("error",f"LoginView.post(): {str(e)}")
+            aprint(e)
         return Response({"error": "Invalid credentials1"}, status=401)
     
 class CheckAuthView(APIView):
@@ -665,4 +742,5 @@ class CheckAuthView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        log("debug","CheckAuthView start/end")
         return Response({"message": "Authenticated"})

@@ -31,13 +31,13 @@ export const HandleImageUpload = () => {
         partialFormData,
         { withCredentials: true }
       );
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(response, "Image upload success");
       }
       setImageId(response.data._id);
       return img_id;
     } catch (err) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.error(err);
       }
       return null;

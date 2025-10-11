@@ -9,7 +9,7 @@ export const utils = () => {
       const outputDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
       return outputDate;
     } catch (error) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(error);
       }
       return "2002-11-22";
@@ -19,7 +19,7 @@ export const utils = () => {
     try {
       return new Date(inputDateString).toISOString();
     } catch (error) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(error);
       }
     }
@@ -34,7 +34,7 @@ export const utils = () => {
       const prettyDate = `${day}-${shortMonths[Number(month) - 1]}-${year}`;
       return prettyDate;
     } catch (error) {
-      if (import.meta.env.VITE_LOGGING) {
+      if (import.meta.env.VITE_LOGGING == "true") {
         console.log(error);
       }
     }
