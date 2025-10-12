@@ -19,7 +19,7 @@ if IS_LOGGING_ENABLED=="True":
     
 logging.basicConfig(
         filename= LOG_FILE_PATH,
-        format= '[ %(asctime)s ] file_name:"%(filename)s" module_name:(%(name)s) line: [%(lineno)d] - logging_level:%(levelname)s - %(funcName)s() - message:%(message)s \n',
+        format= '[ %(asctime)s ] file_name:"%(filename)s" module_name:(%(name)s) line: [%(lineno)d] - logging_level:%(levelname)s - %(funcName)s() - message:%(funcName)s() - %(message)s \n',
         level = logging_level
     )
 

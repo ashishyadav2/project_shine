@@ -676,9 +676,6 @@ class GetTags(APIView):
         results = None
         try:
             log("debug","start")
-            # to get tags along with their counts
-            # db_results = list(self.collection.find({},{"tag_name": 1,"_id":0,"cards_linked": 1}))
-            # results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
             db_results = list(self.collection.find({},{"tag_name": 1,"cards_linked":1,"_id":0}))
             results = {f'{obj["tag_name"]} x{len(obj["cards_linked"])}': True for obj in db_results}
             log("debug","end")
