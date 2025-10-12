@@ -86,14 +86,12 @@
 .hamBurgerMenu {
   @apply text-white py-2 px-4 rounded-full cursor-pointer;
   background-color: var(--accent-color);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  box-shadow: none;
 }
 .closeHamBurgerMenu {
   @apply text-white py-2 px-4 rounded-full cursor-pointer;
   background-color: var(--error);
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  box-shadow: none;
 }
 .phoneNavbar {
   @apply w-full h-screen absolute left-0 top-0 mt-40 flex justify-center duration-300;
@@ -127,8 +125,8 @@
 .websiteName,
 .searchBtn {
   @apply rounded-full bg-white py-2.5 px-5 font-bold cursor-pointer duration-300;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  box-shadow: none;
+  background-color: var(--gray-md-s);
 }
 /* .searchBtn {
   @apply duration-300;
@@ -138,11 +136,30 @@
   width: 200px;
 }
 .header {
-  @apply fixed flex justify-between items-center px-5 md:px-10 fixed z-50 w-screen py-5 bg-white md:bg-transparent;
+  /* @apply fixed flex justify-between items-center px-5 md:px-10 fixed z-50 w-screen py-5 bg-white md:bg-transparent; */
+  @apply fixed flex justify-between items-center px-5 md:px-10 fixed z-50 w-screen py-3 md:bg-transparent;
+  background-color: rgba(255, 255, 255, 1);
+  /* backdrop-filter: blur(10px); */
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+@media (min-width: 768px) {
+  .header {
+    @apply py-5;
+    background-color: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  .websiteName {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+      rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+    @apply bg-white;
+  }
 }
 #root {
   /* background-color: var(--bg-white); */
   background: #becdf7;
+  background: url("https://i.pinimg.com/originals/27/0a/a9/270aa9c6ad9c9bbca3b4ae2844381fa5.gif");
   background: radial-gradient(
     circle,
     rgba(190, 205, 247, 1) 0%,
@@ -154,20 +171,21 @@
   min-height: 100vh;
 }
 body {
-  background: url("./assets/bg.png");
+  /* background: url("./assets/bg.png");
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: center; */
   /* @apply w-screen h-screen; */
 }
 #overlay {
   @apply flex flex-col justify-end w-full h-screen py-12;
-  background: #becdf7;
-  background: linear-gradient(
-    to bottom,
-    /* rgba(255, 255, 255, 1), */ rgba(38, 50, 56, 1),
-    rgba(38, 50, 56, 1)
-  );
+  background: rgba(0, 0, 0, 0.75);
+
+  /* background: linear-gradient( */
+  /* to bottom,
+    rgba(255, 255, 255, 1), rgba(38, 50, 56, 1), */
+  /* rgba(38, 50, 56, 1)
+  ); */
 }
 .centerAbsolute {
   /* top: 50%;
@@ -929,4 +947,13 @@ input:focus {
 }
 .notFoundPage img {
   @apply w-2/12;
+}
+.blankPage {
+  @apply w-full h-screen flex justify-center flex-col items-center text-white;
+  background-color: #4b52db;
+}
+.blankPage h1 {
+  @apply text-2xl font-body mb-5 text-center;
+}
+.blankPage img {
 }

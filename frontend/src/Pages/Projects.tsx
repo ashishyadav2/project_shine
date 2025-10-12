@@ -280,6 +280,7 @@ const Projects = () => {
               cardDescription={item.card_desc}
               cardBgImgUrl={item.card_img_url ? item.card_img_url : ""}
               fromDate={prettifyDate(item.card_from_date)}
+              cardGitLink={item.card_git_link}
             />
           ))}
         </div>

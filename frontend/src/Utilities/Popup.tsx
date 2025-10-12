@@ -15,21 +15,21 @@ interface popupProps {
 
 const popup = ({ popupType = "pInfo", msg, visible }: popupProps) => {
   let clsName = `popUpContainer ${popupType}`;
-  return (
-    visible && (
-      <div className={clsName}>
-        <div className="popUpIcon">
-          {popupType == "pSuccess" && <FontAwesomeIcon icon={faCircleCheck} />}
-          {popupType == "pError" && <FontAwesomeIcon icon={faXmark} />}
-          {popupType == "pInfo" && <FontAwesomeIcon icon={faCircleInfo} />}
-          {popupType == "pWarn" && (
-            <FontAwesomeIcon icon={faTriangleExclamation} />
-          )}
-        </div>
-        <div className="popUpMsg">{msg}</div>
-        <span className="popUpIndicator"></span>
+  return visible ? (
+    <div className={clsName}>
+      <div className="popUpIcon">
+        {popupType == "pSuccess" && <FontAwesomeIcon icon={faCircleCheck} />}
+        {popupType == "pError" && <FontAwesomeIcon icon={faXmark} />}
+        {popupType == "pInfo" && <FontAwesomeIcon icon={faCircleInfo} />}
+        {popupType == "pWarn" && (
+          <FontAwesomeIcon icon={faTriangleExclamation} />
+        )}
       </div>
-    )
+      <div className="popUpMsg">{msg}</div>
+      <span className="popUpIndicator"></span>
+    </div>
+  ) : (
+    <></>
   );
 };
 

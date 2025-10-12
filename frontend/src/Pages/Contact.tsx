@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import ActionButton from "../components/ActionButton";
 
-const About = () => {
+const Contact = () => {
   return (
     <div className="blankPage">
       <img src="https://cdn.dribbble.com/userupload/42086020/file/original-f4a1989f96ed2120ba6bb6d1784dc88d.gif"></img>
@@ -13,4 +12,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default Contact;
