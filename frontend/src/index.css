@@ -934,6 +934,10 @@ input:focus {
 .logoutDiv {
   @apply fixed right-20 top-10;
 }
+.logoutDiv button {
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
+    rgba(17, 17, 26, 0.1) 0px 16px 56px, rgba(17, 17, 26, 0.1) 0px 24px 80px;
+}
 .logoutDiv button:hover {
   background-color: var(--error);
   box-shadow: var(--error) 0px 10px 15px -5px;
