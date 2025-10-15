@@ -63,7 +63,8 @@ CORS_ALLOWED_ORIGINS = [
     os.getenv("HOST_NAME"), 
 ]
 CSRF_TRUSTED_ORIGINS = [
-    f"{os.getenv('HOST_NAME_REACT')}/admin"
+    f"{os.getenv('HOST_NAME_REACT')}",
+    f"{os.getenv('HOST_NAME')}"
 ]
 # CORS_ALLOWED_ORIGIN_REGEXES = [
 #     r"^http://localhost:5173/.*$"
