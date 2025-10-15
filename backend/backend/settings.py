@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.getenv("HOST_NAME_DOMAIN"), os.getenv("HOST_NAME_REACT_DOMAIN")]
+ALLOWED_HOSTS = [os.getenv("HOST_NAME_DOMAIN"), os.getenv("HOST_NAME_REACT_DOMAIN"),".onrender.com"]
 
 
 # Application definition
