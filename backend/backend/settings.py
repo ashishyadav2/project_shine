@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7r(1@1z!huqvsqmy_7hya4oj-!x1ehg&m_ha7b+2e%=@dl6*=q'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -61,11 +61,9 @@ REST_FRAMEWORK = {'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.All
 CORS_ALLOWED_ORIGINS = [
     os.getenv("HOST_NAME_REACT"),     
     os.getenv("HOST_NAME"), 
-    'http://192.168.29.146'
 ]
 CSRF_TRUSTED_ORIGINS = [
-    f"{os.getenv('HOST_NAME_REACT')}/admin",
-    'http://192.168.29.146'
+    f"{os.getenv('HOST_NAME_REACT')}/admin"
 ]
 # CORS_ALLOWED_ORIGIN_REGEXES = [
 #     r"^http://localhost:5173/.*$"
