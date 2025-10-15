@@ -12,6 +12,6 @@ PyJWT==2.10.1
 pymongo==3.11.4
 python-dotenv==1.0.1
 pytz==2025.1
-sqlparse
+sqlparse>=0.3.1
 typing_extensions==4.12.2
 tzdata==2024.2
