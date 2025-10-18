@@ -186,7 +186,7 @@ class ReactView(APIView):
         aprint(f"ReactView.post() request.data: {request.data}")
         try:
             log("debug","start")
-            self.db_obj.start_transaction()
+            # self.db_obj.start_transaction()
             isCopyMode = request.data.get("isCopyMode",False)
             aprint(f"from copy: {request.data} is copy mode: {isCopyMode}")
             img_id = request.data.get("card_img_id","")
@@ -213,7 +213,7 @@ class ReactView(APIView):
                         del request.data["isCopyMode"]
                     aprint(f"After del isCopyMode",request.data)
                 except Exception as ex:
-                    self.db_obj.rollback_transaction()
+                    # self.db_obj.rollback_transaction()
                     response = Response({"message": "Cannot create copy"})
                     log("error",f"Copy mode image save : {str(e)}")
                     aprint(ex)
@@ -223,7 +223,7 @@ class ReactView(APIView):
                 inserted_form_id = serializer_obj.id or serializer_obj.pk
                 self.__insert_tag_helper(inserted_form_id,request.data.get("card_tags",[]))
                 response = Response(serializer.data)
-                self.db_obj.commit_transaction()
+                # self.db_obj.commit_transaction()
             log("debug","end")
         except Exception as exp:
             aprint(exp)
