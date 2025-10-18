@@ -181,7 +181,7 @@ class ReactView(APIView):
         return id
     
     def post(self, request):
-        self.db_obj.start_session()
+        # self.db_obj.start_session()
         response = None
         aprint(f"ReactView.post() request.data: {request.data}")
         try:
@@ -238,7 +238,8 @@ class ReactView(APIView):
                     log("error",f"Error in image rollback: {str(cleanup_err)}")
             response = Response({"message": "Transaction failed"}, status=500)
         finally:
-            self.db_obj.end_session()
+            # self.db_obj.end_session()
+            pass
         return response
         
     def delete(self,request):
