@@ -9,6 +9,7 @@ import Login from "./Pages/Login";
 import PrivateAdminRoute from "./Pages/PrivateAdminRoute";
 import NotFound from "./Pages/NotFound";
 import About from "./Pages/About";
+import Contact from "./Pages/Contact";
 function App() {
   return (
     <Router>
@@ -25,8 +26,8 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
-        {/* <Route path="/contact" element={<Contact />} /> */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
