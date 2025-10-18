@@ -70,6 +70,26 @@ CSRF_TRUSTED_ORIGINS = [
 #     r"^http://localhost:5173/.*$"
 # ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+]
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
