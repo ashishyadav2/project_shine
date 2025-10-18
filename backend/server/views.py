@@ -715,16 +715,16 @@ class LoginView(APIView):
                     key='access_token',
                     value=str(refresh.access_token),
                     httponly=True,
-                    secure=False,      
-                    samesite='Strict', 
+                    secure=True if os.getenv('IS_PROD')=='True' else False,      
+                    samesite='None' if os.getenv('IS_PROD')=='True' else 'Strict', 
                     path="/",    
                 )
                 response.set_cookie(
                     key='refresh_token',
                     value=str(refresh),
                     httponly=True,
-                    secure=False, 
-                    samesite='Strict',
+                    secure=True if os.getenv('IS_PROD')=='True' else False,      
+                    samesite='None' if os.getenv('IS_PROD')=='True' else 
                 )
                 return response
             log("info","user not found")
