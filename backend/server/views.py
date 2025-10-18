@@ -724,7 +724,7 @@ class LoginView(APIView):
                     value=str(refresh),
                     httponly=True,
                     secure=True if os.getenv('IS_PROD')=='True' else False,      
-                    samesite='None' if os.getenv('IS_PROD')=='True' else 
+                    samesite='None' if os.getenv('IS_PROD')=='True' else 'Strict', 
                 )
                 return response
             log("info","user not found")
