@@ -223,10 +223,12 @@ class ReactView(APIView):
                 inserted_form_id = serializer_obj.id or serializer_obj.pk
                 self.__insert_tag_helper(inserted_form_id,request.data.get("card_tags",[]))
                 response = Response(serializer.data)
+                print(response)
                 # self.db_obj.commit_transaction()
             log("debug","end")
         except Exception as exp:
             aprint(exp)
+            print(exp)
             log("error",f"error in saving post: {str(e)}")
             if new_img_id:
                 try:
