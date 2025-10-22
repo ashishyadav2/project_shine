@@ -156,7 +156,13 @@ class ReactView(APIView):
                 output.append({"message":"No records found"})
             for doc in all_documents:
                 img_id = doc.get("card_img_id", "")
-                img_url = f'{os.getenv("HOST_NAME")}/api/image/fetch/{img_id}/' if img_id else DEFAULT_IMG_URL
+                img_url = img_id
+                try:
+                    img_url = ObjectId(img_id)
+                    img_url = f'{os.getenv("HOST_NAME")}/api/image/fetch/{img_id}/' if img_id else DEFAULT_IMG_URL
+                except Exception as expp:
+                    aprint(f"Error in parsing mongodb id for image: {expp}")
+                # img_url = f'{os.getenv("HOST_NAME")}/api/image/fetch/{img_id}/' if img_id else DEFAULT_IMG_URL
                 output.append({
                     "card_id": str(doc.get("_id", "")),
                     "card_title": doc.get("card_title", ""),
@@ -215,7 +221,7 @@ class ReactView(APIView):
                 except Exception as ex:
                     # self.db_obj.rollback_transaction()
                     response = Response({"message": "Cannot create copy"})
-                    log("error",f"Copy mode image save : {str(e)}")
+                    log("error",f"Copy mode image save : {str(ex)}")
                     aprint(ex)
             serializer = ReactSerializer(data=request.data)
             if serializer.is_valid(raise_exception = True):
@@ -252,11 +258,15 @@ class ReactView(APIView):
             existing_record = None
             aprint(f"ReactView.delete() request.data: {request.data}")
             if img_id:
-                isImageDeleted = self.gfs.delete(ObjectId(img_id))
-                aprint(f"{img_id, isImageDeleted}")
-                if isImageDeleted is None:
+                try:
+                    isImageDeleted = self.gfs.delete(ObjectId(img_id))
+                    aprint(f"{img_id, isImageDeleted}")
+                    if isImageDeleted is None:
+                        existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
+                        aprint(f"{existing_record}")
+                except Exception as ep:
                     existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
-                    aprint(f"{existing_record}")
+                    aprint(f"exception in deleting url image: {ep}")
             else:
                 existing_record = self.collection.delete_one({"_id": ObjectId(post_id)})
             aprint(f'deleted: {request.data.get("card_tags",[])}')
@@ -266,7 +276,7 @@ class ReactView(APIView):
         except Exception as ex:
             log("error",f"{str(ex)}")
             aprint(ex)
-            return Response({"message": "error occurred"})
+            return Response({"message": "error occurred"},status_code=500)
             
     def patch(self,request,form_doc_id=None):
         aprint(f"Form Data>> {request.data}, form_id>> {form_doc_id}\n")
@@ -299,17 +309,26 @@ class ReactView(APIView):
                 existing_card_img_id = existing_record.get("card_img_id") 
                 
                 if  new_img_id!="": #if new img is present
-                    if existing_card_img_id!="": # delete existing image
-                        isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
-                        if isImageDeleted is None:
-                            update_fields["card_img_id"] = new_img_id                
+                    try:
+                        if existing_card_img_id!="": # delete existing image
+                            isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
+                            if isImageDeleted is None:
+                                update_fields["card_img_id"] = new_img_id  
+                                aprint(f"Old Img deleted!: {existing_card_img_id}")              
+                    except Exception as expp:
+                        aprint(f"Exception in deleting image in patch mode: {expp}")
+                        update_fields["card_img_id"] = new_img_id  
                     else: #current image is absent, inserting new image
                         update_fields["card_img_id"] = new_img_id                
                 elif isImageRemoved:
-                    if existing_card_img_id!="": # delete existing image
-                        isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
-                        if isImageDeleted is None:
-                            update_fields["card_img_id"] = ""                  
+                    try:
+                        if existing_card_img_id!="": # delete existing image
+                            isImageDeleted = self.gfs.delete(ObjectId(existing_card_img_id))
+                            if isImageDeleted is None:
+                                update_fields["card_img_id"] = ""                  
+                    except Exception as ep:
+                        aprint(f"Exception in deleting image in patch mode on removal: {ep}")
+                        update_fields["card_img_id"] = "" 
                 elif old_img_id == "": #if image is removed
                     update_fields["card_img_id"] = "" 
                     
