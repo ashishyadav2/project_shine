@@ -38,6 +38,8 @@ const Admin = () => {
     pShowHide,
     Notify,
     formFlag,
+    handleImageURLChange,
+    handleImageUrlPreview,
   } = useAdminFormHandler();
   const [tagsArr, setTagsArr] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState<string>("");
@@ -229,6 +231,18 @@ const Admin = () => {
                     />
                   </span>
                 </div>
+              </div>
+              <div className="imgUrlContainer">
+                <InputField
+                  type="url"
+                  fieldName="Image URL"
+                  inputFunc={handleImageURLChange}
+                />
+                <ActionButton
+                  btnText="preview"
+                  btnType="active"
+                  btnFun={handleImageUrlPreview}
+                />
               </div>
             </div>
           </div>

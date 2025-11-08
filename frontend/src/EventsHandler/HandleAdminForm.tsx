@@ -13,6 +13,7 @@ export const useAdminFormHandler = () => {
   const [formFlag, setFormFlag] = useState(false);
   const [isEditBtn, setIsEditBtn] = useState(false);
   const [formId, setFormId] = useState("");
+  const [imgPreviewURL, setImgPreviewURL] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     desc: "",
@@ -119,9 +120,16 @@ export const useAdminFormHandler = () => {
     });
     setSelectedFile(null);
     setPreviewURL(bgImage);
+    setImgPreviewURL("");
     setActiveImgClass("imagePreview");
   };
 
+  const handleImageUrlPreview = () => {
+    setPreviewURL(imgPreviewURL);
+  };
+  const handleImageURLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImgPreviewURL(e.target.value);
+  };
   const validateFormFields = (isEditBtn: boolean) => {
     //validate each form field
     let formDataObj = Object.entries(formData).slice(0, 5);
@@ -129,8 +137,15 @@ export const useAdminFormHandler = () => {
       formDataObj = Object.entries(formData).slice(0, 5);
     }
     for (const [key, value] of formDataObj) {
+      if (selectedFile == null && imgPreviewURL != "") {
+        if (key == "img_url") {
+          console.log(key);
+          continue;
+        }
+      }
       if (value == "" || value === null) {
         Notify(`${key.toUpperCase()} cannot be empty!`, "pWarn");
+
         if (import.meta.env.VITE_LOGGING == "true") {
           console.log(`${key} cannot be empty!`);
         }
@@ -194,9 +209,16 @@ export const useAdminFormHandler = () => {
       } else {
         try {
           // formData.from_date = `${strToDate(formData.from_date)}`;
+          let newFormData = formData;
+          if (imgPreviewURL != "") {
+            if (import.meta.env.VITE_LOGGING == "true") {
+              console.log(`imgPreviewURL: ${imgPreviewURL}`);
+            }
+            newFormData = { ...formData, new_img_id: imgPreviewURL };
+          }
           const response = await axios.patch(
             `${import.meta.env.VITE_BACKEND_URL}/api/update_post/${formId}/`,
-            formData,
+            newFormData,
             { withCredentials: true }
           );
           if (import.meta.env.VITE_LOGGING == "true") {
@@ -222,13 +244,19 @@ export const useAdminFormHandler = () => {
       if (import.meta.env.VITE_LOGGING == "true") {
         console.log("Add mode", formData);
       }
-      let uploaded_image_id = await handleUpload();
+      let uploaded_image_id = "";
+      if (selectedFile != null) {
+        uploaded_image_id = await handleUpload();
+        if (!uploaded_image_id) {
+          Notify("Cannot upload image", "pError");
+          return;
+        }
+      }
       if (import.meta.env.VITE_LOGGING == "true") {
         console.log("uploaded image id", uploaded_image_id);
       }
-      if (!uploaded_image_id) {
-        Notify("Cannot upload image", "pError");
-        return;
+      if (imgPreviewURL != "") {
+        uploaded_image_id = imgPreviewURL;
       }
       let data = {
         card_title: formData.title,
@@ -292,5 +320,7 @@ export const useAdminFormHandler = () => {
     pShowHide,
     Notify,
     formFlag,
+    handleImageURLChange,
+    handleImageUrlPreview,
   };
 };

@@ -307,3 +307,4 @@ dist
 *.jpg
 .env_server
 .env_react_server
+.vscode/

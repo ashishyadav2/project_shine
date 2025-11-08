@@ -692,8 +692,8 @@ class ImageUploadView(APIView):
 class GetTags(APIView):
     db_obj = DBConnect()
     collection = db_obj.get_collection(collection_name="TAGS_TABLE")
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [CookieJWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     def get(self,request):
         results = None
         try:
