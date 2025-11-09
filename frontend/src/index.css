@@ -182,17 +182,25 @@ body {
 #overlay {
   @apply flex flex-col justify-end w-full h-screen py-12;
   /* background: rgba(0, 0, 0, 0.75); */
-  background: var(--accent-color-xtra-light);
+  /* background: var(--accent-color-xtra-light); */
   /* background-image: url("https://i.pinimg.com/736x/1a/4a/41/1a4a414543d8ad21ab6a0c62847679f9.jpg"); */
-  overflow: hidden;
+  /* overflow: hidden; */
+  background: linear-gradient(-45deg, #90caf9, #9fa8da, #ffe082, #b2ebf2);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
   /* background-size: cover; */
-  /* background: linear-gradient( */
-  /* to bottom,
-    rgba(255, 255, 255, 1), rgba(38, 50, 56, 1), */
-  /* rgba(38, 50, 56, 1)
-  ); */
 }
-
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 #blob {
   @apply w-full h-2/6 md:w-3/6 absolute left-0 top-0 lg:left-80 lg:-right-20 lg:-top-20;
   /* transform: rotate(0deg); */
@@ -201,6 +209,7 @@ body {
   fill: var(--accent-color);
   /* width: 50vmax; */
   transform: scale(0.7);
+  display: none;
   animation: rotateBlob 10s ease-in-out infinite;
   transform-origin: 50% 50%;
 }
@@ -374,7 +383,7 @@ body {
   @apply flex flex-wrap md:w-7/12 md:pl-10 pl-3 w-full lg:w-6/12;
 }
 .heading {
-  @apply text-5xl md:text-7xl lg:text-8xl text-black w-full md:w-7/12 z-50 font-ui;
+  @apply text-5xl md:text-7xl lg:text-8xl text-black w-full md:w-7/12 z-10 font-ui;
   overflow: hidden;
   text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
 }
@@ -1093,7 +1102,7 @@ input:focus {
 }
 /* logout div */
 .logoutDiv {
-  @apply fixed right-3 top-5 md:right-20 md:top-10;
+  @apply fixed right-3 top-5 md:right-20 md:top-10 z-10;
 }
 .logoutDiv button {
   box-shadow: rgba(17, 17, 26, 0.1) 0px 8px 24px,
