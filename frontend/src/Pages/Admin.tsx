@@ -40,15 +40,17 @@ const Admin = () => {
     formFlag,
     handleImageURLChange,
     handleImageUrlPreview,
+    imgPreviewURL,
   } = useAdminFormHandler();
   const [tagsArr, setTagsArr] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState<string>("");
   let fetchedTags: string[] = [];
   const handleKeyDown = (e: any) => {
-    if (e.key === "," && tagInputValue.trim() !== "") {
+    const tagValue = tagInputValue.trim();
+    if ((e.key === "," && tagValue !== "") || tagValue.endsWith(",")) {
+      const tag = tagValue.replace(/,$/, "");
       e.preventDefault();
-      const tag = tagInputValue.trim();
-      const tagRegex = /^[a-z]+$/g;
+      const tagRegex = /^[a-z-]+$/g;
       if (!tagRegex.test(tag)) {
         Notify("Invalid tag format. Only alphabets are allowed", "pWarn");
         setTagInputValue("");
@@ -62,7 +64,7 @@ const Admin = () => {
         return;
       }
       if (!tagsArr.includes(tag)) {
-        if (tag.length > 15) {
+        if (tag.length > 20) {
           Notify("A tag cannot have more than 15 characters", "pWarn");
           return;
         }
@@ -195,6 +197,7 @@ const Admin = () => {
                     id="tags"
                     title="Tags"
                     onKeyDown={handleKeyDown}
+                    onInput={handleKeyDown}
                   ></input>
                 </div>
                 <InputField
@@ -236,6 +239,7 @@ const Admin = () => {
                 <InputField
                   type="url"
                   fieldName="Image URL"
+                  value={imgPreviewURL}
                   inputFunc={handleImageURLChange}
                 />
                 <ActionButton

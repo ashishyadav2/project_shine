@@ -322,5 +322,6 @@ export const useAdminFormHandler = () => {
     formFlag,
     handleImageURLChange,
     handleImageUrlPreview,
+    imgPreviewURL,
   };
 };

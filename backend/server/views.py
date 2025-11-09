@@ -429,8 +429,13 @@ class RealTimeSearchView(APIView):
                 return {"message":"No results found"}
             
             for item in results:
-                item["_id"] = str(item["_id"])           
-                item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
+                item["_id"] = str(item["_id"])
+                card_id = item.get("card_img_id","")
+                try:
+                    card_id = ObjectId(card_id)
+                    item["card_img_url"] = f'{os.getenv("HOST_NAME")}/api/image/fetch/{item.get("card_img_id","")}/'
+                except Exception as e:
+                    item["card_img_url"] = item.get("card_img_id","")
             results.append({"hasMore":hasMore})
             results.append({"curr_offset": curr_offset})
             # print(results)

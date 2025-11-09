@@ -177,7 +177,7 @@ body {
   background-size: cover;
   background-position: center; */
   /* @apply w-screen h-screen; */
-  overflow: hidden;
+  overflow-x: hidden;
 }
 #overlay {
   @apply flex flex-col justify-end w-full h-screen py-12;
@@ -200,6 +200,7 @@ body {
   /* animation: moveBlob infinite 1s; */
   fill: var(--accent-color);
   /* width: 50vmax; */
+  transform: scale(0.7);
   animation: rotateBlob 10s ease-in-out infinite;
   transform-origin: 50% 50%;
 }
@@ -286,7 +287,7 @@ body {
 
 @keyframes move {
   0% {
-    transform: scale(1) translate(10px, -30px);
+    transform: scale(0.7) translate(10px, -30px);
   }
   38% {
     transform: scale(0.8, 1) translate(80vw, 30vh) rotate(160deg);
@@ -295,13 +296,13 @@ body {
     transform: scale(0.8, 1) translate(60vw, 30vh) rotate(160deg);
   }
   78% {
-    transform: scale(1.3) translate(-50vw, 50vh) rotate(-20deg);
+    transform: scale(0.9) translate(-50vw, 50vh) rotate(-20deg);
   }
   80% {
-    transform: scale(1.3) translate(-50vw, 50vh) rotate(-20deg);
+    transform: scale(0.9) translate(-50vw, 50vh) rotate(-20deg);
   }
   100% {
-    transform: scale(1) translate(10px, -30px);
+    transform: scale(0.7) translate(10px, -30px);
   }
 }
 @keyframes rotateBlob {
